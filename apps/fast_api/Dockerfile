@@ -7,4 +7,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "-m", "uvicorn", "main:app", "--reload"]
+WORKDIR /app/src
+
+CMD ["python", "-m", "uvicorn", "main:app", "--reload", "--host", "0.0.0.0"]

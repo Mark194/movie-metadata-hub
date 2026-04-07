@@ -1,25 +1,23 @@
-from fastapi import APIRouter
-from pydantic import BaseModel
+from typing import List, Annotated
 
-# Объект router, в котором регистрируем обработчики
+from fastapi import APIRouter, Depends
+
+from api.v1.schemas import FilmQueryParams
+from models.film import Film
+from services.film import FilmService, get_film_service
+
 router = APIRouter()
 
-# FastAPI в качестве моделей использует библиотеку pydantic
-# https://pydantic-docs.helpmanual.io
-# У неё есть встроенные механизмы валидации, сериализации и десериализации
-# Также она основана на дата-классах
 
-# Модель ответа API
-class Film(BaseModel):
-    id: str
-    title: str
-
-# С помощью декоратора регистрируем обработчик film_details
-# На обработку запросов по адресу <some_prefix>/some_id
-# Позже подключим роутер к корневому роутеру
-# И адрес запроса будет выглядеть так — /api/v1/film/some_id
-# В сигнатуре функции указываем тип данных, получаемый из адреса запроса (film_id: str)
-# И указываем тип возвращаемого объекта — Film
-@router.get('/{film_id}', response_model=Film)
-async def film_details(film_id: str) -> Film:
-    return Film(id='some_id', title='some_title')
+@router.get('/films', response_model=List[Film])
+async def get_films(
+    params = Depends(FilmQueryParams),  # Переносим класс внутрь Depends
+    film_service: FilmService = Depends(get_film_service),
+):
+    return await film_service.get_all(
+        sort=params.sort,
+        offset=params.offset,
+        limit=params.page_size,
+        genre=params.genre,
+        query=params.query
+    )

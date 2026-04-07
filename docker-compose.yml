@@ -73,6 +73,8 @@ services:
       - .env
     networks:
       - etl_network
+    ports:
+      - "8000:8000"
     depends_on:
       theatre-db:
         condition: service_healthy
