@@ -42,6 +42,7 @@ class DataConverter:
             'id': postgres_movie['id'],
             'title': postgres_movie['title'],
             'description': postgres_movie.get('description'),
+            'imdb_rating': postgres_movie.get('rating'),
             'genres': genre_names,
             'actors': actors,
             'writers': writers,
