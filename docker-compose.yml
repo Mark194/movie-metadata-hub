@@ -67,6 +67,21 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  fastapi:
+    build: apps/fast_api
+    env_file:
+      - .env
+    networks:
+      - etl_network
+    depends_on:
+      theatre-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    restart: unless-stopped
+
 networks:
   etl_network:
     driver: bridge
