@@ -1,4 +1,10 @@
-FROM ubuntu:latest
-LABEL authors="mark"
+FROM python:3.12-slim
 
-ENTRYPOINT ["top", "-b"]
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD ["python", "-m", "uvicorn", "main:app", "--reload"]
