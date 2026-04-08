@@ -18,7 +18,9 @@ class PaginatedParams(BaseModel):
 
 
 class FilmQueryParams(PaginatedParams):
-    """Параметры запроса для фильмов"""
-    sort: Optional[str] = Query(None, description="Поле для сортировки, используйте '-' для обратного порядка")
-    genre: Optional[str] = Query(None, description="Фильтр по жанру")
-    query: Optional[str] = Query(None, description="Поисковый запрос")
+    sort: Optional[str] = Query(None, description='Поле для сортировки, используйте \'-\' для обратного порядка')
+    genre: Optional[str] = Query(None, description='Фильтр по жанру')
+
+
+class SearchQueryParams(PaginatedParams):
+    query: Optional[str] = Query(None, description='Поиск фильмов по названию')
