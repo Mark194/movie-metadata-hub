@@ -1,6 +1,7 @@
 SELECT
     fw.id,
     fw.title,
+    fw.rating,
     fw.description,
     fw.modified,
     COALESCE(
