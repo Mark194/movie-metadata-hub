@@ -18,7 +18,7 @@ class DataConverter:
         for person in persons:
             role = person.get('role', '').lower()
             person_data = {
-                'id': person['id'],
+                'uuid': person['id'],
                 'name': person['full_name']
             }
             person_name = person.get('full_name', '')
@@ -36,14 +36,14 @@ class DataConverter:
                 if person_name:
                     directors_names.append(person_name)
 
-        genre_names = [genre.get('name') for genre in genres if genre.get('name')]
+        genres = [{'uuid':genre.get('id'), 'name': genre.get('name')} for genre in genres if genre.get('name')]
 
         return {
-            'id': postgres_movie['id'],
+            'uuid': postgres_movie['id'],
             'title': postgres_movie['title'],
             'description': postgres_movie.get('description'),
             'imdb_rating': postgres_movie.get('rating'),
-            'genres': genre_names,
+            'genres': genres,
             'actors': actors,
             'writers': writers,
             'directors': directors,

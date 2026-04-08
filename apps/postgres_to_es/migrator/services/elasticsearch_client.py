@@ -29,7 +29,7 @@ class ElasticsearchClient:
         actions = [
             {
                 '_index': self.index,
-                '_id': movie['id'],
+                '_id': movie['uuid'],
                 '_source': movie
             }
             for movie in movies

@@ -42,14 +42,24 @@
   "mappings": {
     "dynamic": "strict",
     "properties": {
-      "id": {
+      "uuid": {
         "type": "keyword"
       },
       "imdb_rating": {
         "type": "float"
       },
       "genres": {
-        "type": "keyword"
+        "type": "nested",
+        "dynamic": "strict",
+        "properties": {
+          "uuid": {
+            "type": "keyword"
+          },
+          "name": {
+            "type": "text",
+            "analyzer": "ru_en"
+          }
+        }
       },
       "title": {
         "type": "text",
@@ -80,7 +90,7 @@
         "type": "nested",
         "dynamic": "strict",
         "properties": {
-          "id": {
+          "uuid": {
             "type": "keyword"
           },
           "name": {
@@ -93,7 +103,7 @@
         "type": "nested",
         "dynamic": "strict",
         "properties": {
-          "id": {
+          "uuid": {
             "type": "keyword"
           },
           "name": {
@@ -106,7 +116,7 @@
         "type": "nested",
         "dynamic": "strict",
         "properties": {
-          "id": {
+          "uuid": {
             "type": "keyword"
           },
           "name": {
