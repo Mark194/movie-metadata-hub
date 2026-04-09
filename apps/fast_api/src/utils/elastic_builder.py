@@ -1,16 +1,16 @@
-from typing import Optional, Dict, Any, List
+from typing import Any
 
 
 class ElasticQueryBuilder:
 
     @staticmethod
     def build_films_query(
-            sort: Optional[str] = None,
+            sort: str | None = None,
             offset: int = 0,
             limit: int = 50,
-            genre: Optional[str] = None,
-            query: Optional[str] = None,
-    ) -> Dict[str, Any]:
+            genre: str | None = None,
+            query: str | None = None,
+    ) -> dict[str, Any]:
 
         es_query = {'match_all': {}}
 
@@ -54,7 +54,7 @@ class ElasticQueryBuilder:
         return body
 
     @staticmethod
-    def _build_sort(sort: str) -> List[Dict]:
+    def _build_sort(sort: str) -> list[dict]:
         sort_field = sort
         sort_order = 'asc'
 

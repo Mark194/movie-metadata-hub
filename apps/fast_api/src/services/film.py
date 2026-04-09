@@ -1,5 +1,4 @@
 import logging
-from typing import Optional, List
 
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from elasticsearch.exceptions import ConnectionError as ESConnectionError
@@ -11,7 +10,6 @@ from utils.elastic_builder import ElasticQueryBuilder
 
 
 class FilmService:
-
     FILM_CACHE_EXPIRE = 300  # 5 минут
     FILMS_LIST_CACHE_EXPIRE = 60  # 1 минута
 
@@ -25,7 +23,7 @@ class FilmService:
         self.query_builder = ElasticQueryBuilder()
         self.key_builder = CacheKeyBuilder()
 
-    async def get_by_id(self, film_id: str) -> Optional[FilmDetail]:
+    async def get_by_id(self, film_id: str) -> FilmDetail | None:
         cache_key = self.key_builder.film_detail(film_id)
 
         film = await self.cache.get(cache_key, FilmDetail)
@@ -42,12 +40,12 @@ class FilmService:
 
     async def get_all(
             self,
-            sort: Optional[str] = None,
+            sort: str | None = None,
             offset: int = 0,
             limit: int = 50,
-            genre: Optional[str] = None,
-            query: Optional[str] = None,
-    ) -> List[Film]:
+            genre: str | None = None,
+            query: str | None = None,
+    ) -> list[Film]:
         cache_key = self.key_builder.films_list(sort, offset, limit, genre, query)
 
         films = await self.cache.get_list(cache_key, Film)
@@ -61,7 +59,7 @@ class FilmService:
 
         return films or []
 
-    async def _fetch_film_from_elastic(self, film_id: str) -> Optional[FilmDetail]:
+    async def _fetch_film_from_elastic(self, film_id: str) -> FilmDetail | None:
         try:
             doc = await self.elastic.get(index='movies', id=film_id)
             return FilmDetail(**doc['_source'])
@@ -74,12 +72,12 @@ class FilmService:
 
     async def _fetch_films_from_elastic(
             self,
-            sort: Optional[str] = None,
+            sort: str | None = None,
             offset: int = 0,
             limit: int = 50,
-            genre: Optional[str] = None,
-            query: Optional[str] = None,
-    ) -> List[Film]:
+            genre: str | None = None,
+            query: str | None = None,
+    ) -> list[Film]:
         try:
             body = self.query_builder.build_films_query(sort, offset, limit, genre, query)
             response = await self.elastic.search(index='movies', body=body)

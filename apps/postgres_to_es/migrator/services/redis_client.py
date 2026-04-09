@@ -1,7 +1,8 @@
 import redis
-from typing import Optional
 
-from settings import logger
+from common import get_logger
+
+logger = get_logger(__name__)
 
 
 class RedisClient:
@@ -18,10 +19,10 @@ class RedisClient:
             logger.error(f'Failed to connect to Redis: {e}')
             raise
 
-    def get(self, key: str) -> Optional[str]:
+    def get(self, key: str) -> str | None:
         return self.client.get(key)
 
-    def set(self, key: str, value: str, expire: Optional[int] = None):
+    def set(self, key: str, value: str, expire: int | None = None):
         self.client.set(key, value, ex=expire)
 
     def close(self):

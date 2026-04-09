@@ -1,10 +1,10 @@
-from typing import Dict, Any, List
+from typing import Any
 
 
 class DataConverter:
 
     @staticmethod
-    def transform_movie(postgres_movie: Dict[str, Any]) -> Dict[str, Any]:
+    def transform_movie(postgres_movie: dict[str, Any]) -> dict[str, Any]:
         persons = postgres_movie.get('persons', [])
         genres = postgres_movie.get('genres', [])
 
@@ -36,7 +36,7 @@ class DataConverter:
                 if person_name:
                     directors_names.append(person_name)
 
-        genres = [{'uuid':genre.get('id'), 'name': genre.get('name')} for genre in genres if genre.get('name')]
+        genres = [{'uuid': genre.get('id'), 'name': genre.get('name')} for genre in genres if genre.get('name')]
 
         return {
             'uuid': postgres_movie['id'],
@@ -53,5 +53,5 @@ class DataConverter:
         }
 
     @staticmethod
-    def transform_movies(postgres_movies: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def transform_movies(postgres_movies: list[dict[str, Any]]) -> list[dict[str, Any]]:
         return [DataConverter.transform_movie(movie) for movie in postgres_movies]

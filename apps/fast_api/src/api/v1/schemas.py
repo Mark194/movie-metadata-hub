@@ -1,4 +1,3 @@
-from typing import Optional
 from fastapi import Query
 from pydantic import BaseModel
 
@@ -18,9 +17,9 @@ class PaginatedParams(BaseModel):
 
 
 class FilmQueryParams(PaginatedParams):
-    sort: Optional[str] = Query(None, description='Поле для сортировки, используйте \'-\' для обратного порядка')
-    genre: Optional[str] = Query(None, description='Фильтр по жанру')
+    sort: str | None = Query(None, description='Поле для сортировки, используйте \'-\' для обратного порядка')
+    genre: str | None = Query(None, description='Фильтр по жанру')
 
 
 class SearchQueryParams(PaginatedParams):
-    query: Optional[str] = Query(None, description='Поиск фильмов по названию')
+    query: str | None = Query(None, description='Поиск фильмов по названию')

@@ -1,6 +1,3 @@
-from typing import Optional
-
-
 class CacheKeyBuilder:
 
     @staticmethod
@@ -9,11 +6,11 @@ class CacheKeyBuilder:
 
     @staticmethod
     def films_list(
-            sort: Optional[str] = None,
+            sort: str | None = None,
             offset: int = 0,
             limit: int = 50,
-            genre: Optional[str] = None,
-            query: Optional[str] = None,
+            genre: str | None = None,
+            query: str | None = None,
     ) -> str:
         key_parts = ['films', f'offset:{offset}', f'limit:{limit}']
 

@@ -1,5 +1,5 @@
 import orjson
-from typing import List, TypeVar, Type, Any
+from typing import TypeVar, Type, Any
 
 T = TypeVar('T')
 
@@ -12,5 +12,5 @@ def orjson_loads(data: bytes) -> Any:
     return orjson.loads(data)
 
 
-def deserialize_list(data: bytes, model_class: Type[T]) -> List[T]:
+def deserialize_list(data: bytes, model_class: Type[T]) -> list[T]:
     return [model_class(**item) for item in orjson_loads(data)]

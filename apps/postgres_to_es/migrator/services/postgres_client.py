@@ -1,11 +1,13 @@
 from contextlib import contextmanager
-from typing import Dict, List, Optional, Any
+from typing import Any
 
 import psycopg2
 from psycopg2.extras import DictCursor
 
-from settings import logger
+from common import get_logger
 from utils.query_loader import QueryLoader
+
+logger = get_logger(__name__)
 
 
 class PostgreSQLClient:
@@ -43,7 +45,7 @@ class PostgreSQLClient:
         finally:
             cursor.close()
 
-    def get_updated_movies(self, last_modified: Optional[str] = None, limit: int = 1000):
+    def get_updated_movies(self, last_modified: str | None = None, limit: int = 1000):
         query = self.queries.load('movies/get_updated_movies')
         with self.get_cursor() as cursor:
             cursor.execute(query, {
@@ -54,21 +56,21 @@ class PostgreSQLClient:
 
         return [dict(row) for row in results]
 
-    def get_updated_persons(self, last_modified: Optional[str] = None):
+    def get_updated_persons(self, last_modified: str | None = None):
         query = self.queries.load('persons/get_updated_persons')
         with self.get_cursor() as cursor:
             cursor.execute(query, {'last_modified': last_modified or '1900-01-01'})
             results = cursor.fetchall()
         return [row['id'] for row in results]
 
-    def get_updated_genres(self, last_modified: Optional[str] = None):
+    def get_updated_genres(self, last_modified: str | None = None):
         query = self.queries.load('genres/get_updated_genres')
         with self.get_cursor() as cursor:
             cursor.execute(query, {'last_modified': last_modified or '1900-01-01'})
             results = cursor.fetchall()
         return [row['id'] for row in results]
 
-    def get_movies_by_ids(self, ids: List[int]) -> List[Dict[str, Any]]:
+    def get_movies_by_ids(self, ids: list[int]) -> list[dict[str, Any]]:
         query = self.queries.load('movies/get_movies_by_ids')
         with self.get_cursor() as cursor:
             cursor.execute(query, {'ids': ids})
