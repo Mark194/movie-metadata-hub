@@ -58,6 +58,8 @@ services:
       - .env
     networks:
       - etl_network
+    volumes:
+      - ./apps/common:/app/common
     depends_on:
       theatre-db:
         condition: service_healthy
@@ -75,6 +77,8 @@ services:
       - etl_network
     ports:
       - "8000:8000"
+    volumes:
+      - ./apps/common:/app/src/common
     depends_on:
       theatre-db:
         condition: service_healthy

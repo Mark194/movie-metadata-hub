@@ -1,5 +1,3 @@
-from typing import List
-
 from api.v1.schemas import FilmQueryParams, SearchQueryParams
 from fastapi import APIRouter, Depends
 from models.film import Film, FilmDetail
@@ -9,7 +7,7 @@ from core.dependencies import get_film_service
 router = APIRouter()
 
 
-@router.get('/films', response_model=List[Film])
+@router.get('/films', response_model=list[Film])
 async def get_films(
         params=Depends(FilmQueryParams),
         film_service: FilmService = Depends(get_film_service),
@@ -22,7 +20,7 @@ async def get_films(
     )
 
 
-@router.get('/films/search', response_model=List[Film])
+@router.get('/films/search', response_model=list[Film])
 async def search_films(
         params=Depends(SearchQueryParams),
         film_service: FilmService = Depends(get_film_service),

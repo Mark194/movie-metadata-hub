@@ -1,14 +1,16 @@
-from typing import List, Dict, Any
+from typing import Any
 
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk, BulkIndexError
-from settings import logger
+from common import get_logger
 from utils.index_loader import load_index_from_json
+
+logger = get_logger(__name__)
 
 
 class ElasticsearchClient:
 
-    def __init__(self, hosts: List[str], index: str = 'movies'):
+    def __init__(self, hosts: list[str], index: str = 'movies'):
         self.client = Elasticsearch(hosts)
         self.index = index
         self._ensure_index()
@@ -22,7 +24,7 @@ class ElasticsearchClient:
             self.client.indices.create(index=self.index, body=mapping)
             logger.info(f'Created index {self.index}')
 
-    def bulk_index(self, movies: List[Dict[str, Any]]):
+    def bulk_index(self, movies: list[dict[str, Any]]):
         if not movies:
             return
 
@@ -54,7 +56,7 @@ class ElasticsearchClient:
             logger.error(f'Unexpected error during bulk indexing: {e}')
             raise
 
-    def delete_movies(self, ids: List[str]):
+    def delete_movies(self, ids: list[str]):
         if not ids:
             return
 

@@ -1,6 +1,8 @@
 from pathlib import Path
 
-from settings import logger
+from common import get_logger
+
+logger = get_logger(__name__)
 
 
 class QueryLoader:
