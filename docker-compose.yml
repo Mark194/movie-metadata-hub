@@ -71,6 +71,7 @@ services:
 
   fastapi:
     build: apps/fast_api
+    image: fastapi-image
     env_file:
       - .env
     networks:
@@ -87,6 +88,25 @@ services:
       elasticsearch:
         condition: service_healthy
     restart: unless-stopped
+
+  tests:
+    image: fastapi-image
+    env_file:
+      - .env
+    entrypoint: >
+      sh -c "pip install -r ../tests/functional/requirements.txt
+      && pytest ../tests/functional/src"
+    networks:
+      - etl_network
+    volumes:
+      - ./apps/common:/app/common
+    depends_on:
+      theatre-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
 
 networks:
   etl_network:

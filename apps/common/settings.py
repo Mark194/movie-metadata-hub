@@ -38,6 +38,7 @@ class MigratorSettings(BaseModel):
 
 class ApiSettings(BaseModel):
     project_name: str
+    url: str
 
 
 class Settings(BaseSettings):
