@@ -16,6 +16,10 @@ class RedisSettings(BaseModel):
     port: int
     db: int
 
+    @property
+    def url(self):
+        return f'redis://{self.host}:{self.port}/{self.db}'
+
 
 class PostgresSettings(BaseModel):
     db: str

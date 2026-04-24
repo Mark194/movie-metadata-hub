@@ -22,4 +22,8 @@ class FilmQueryParams(PaginatedParams):
 
 
 class SearchQueryParams(PaginatedParams):
-    query: str | None = Query(None, description='Поиск фильмов по названию')
+    query: str | None = Query(
+        ...,
+        min_length=1,
+        max_length=200,
+        description='Поиск фильмов по названию и описанию')
