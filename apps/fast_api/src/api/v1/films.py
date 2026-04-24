@@ -1,5 +1,5 @@
 from api.v1.schemas import FilmQueryParams, SearchQueryParams
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Path
 from models.film import Film, FilmDetail
 from services.film import FilmService
 from core.dependencies import get_film_service
@@ -32,9 +32,12 @@ async def search_films(
     )
 
 
+UUID_REGEX = r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+
+
 @router.get('/films/{film_id}', response_model=FilmDetail)
 async def get_film(
-        film_id: str,
+        film_id: str = Path(..., pattern=UUID_REGEX, description="Film UUID"),
         film_service: FilmService = Depends(get_film_service),
 ):
     return await film_service.get_by_id(

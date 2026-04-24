@@ -4,6 +4,7 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from elasticsearch.exceptions import ConnectionError as ESConnectionError
 
 from core.cache_keys import CacheKeyBuilder
+from fastapi import HTTPException
 from models.film import Film, FilmDetail
 from services.cache import CacheService
 from utils.elastic_builder import ElasticQueryBuilder
@@ -64,11 +65,10 @@ class FilmService:
             doc = await self.elastic.get(index='movies', id=film_id)
             return FilmDetail(**doc['_source'])
         except NotFoundError:
-            logging.warning(f"Film not found in Elasticsearch: {film_id}")
-            return None
+            raise HTTPException(status_code=404, detail=f"Film {film_id} not found")
         except ESConnectionError as e:
-            logging.error(f"Elasticsearch connection error: {e}")
-            return None
+            raise HTTPException(status_code=404, detail=f"Elasticsearch connection error: {e}")
+
 
     async def _fetch_films_from_elastic(
             self,

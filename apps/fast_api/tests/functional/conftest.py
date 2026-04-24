@@ -12,6 +12,15 @@ from .testdata.es_mapping import MAPPING_MOVIES
 settings = get_settings()
 
 
+@pytest_asyncio.fixture(autouse=True)
+async def cleanup_after_test(es_client, redis_client):
+    yield
+    if await es_client.indices.exists(index=settings.elastic.index):
+        await es_client.indices.delete(index=settings.elastic.index)
+
+    await redis_client.flushdb()
+
+
 @pytest_asyncio.fixture(name='generate_movies')
 def generate_movies():
     def inner(
