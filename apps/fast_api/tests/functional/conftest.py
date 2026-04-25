@@ -94,8 +94,11 @@ def es_write_data(es_client):
             await es_client.indices.delete(index=index)
         await es_client.indices.create(index=index, **MAPPING_MOVIES)
 
-        updated, errors = await async_bulk(client=es_client, actions=data)
-        await es_client.indices.refresh(index=index)
+        updated, errors = await async_bulk(
+            client=es_client,
+            actions=data,
+            refresh = 'wait_for'
+        )
 
         if errors:
             raise Exception('Ошибка записи данных в Elasticsearch')

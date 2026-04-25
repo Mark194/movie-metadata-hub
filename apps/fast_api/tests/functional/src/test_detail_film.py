@@ -1,3 +1,9 @@
+# tests/functional/src/test_film_detail.py
+"""
+Функциональные тесты для эндпоинта GET /films/{film_id}
+Стиль: AAA (Arrange-Act-Assert) с переносами между логическими блоками
+"""
+
 import uuid
 from http import HTTPStatus
 
@@ -38,6 +44,7 @@ async def test_film_detail_validation(film_id, expected_status, generate_movies,
         await es_write_data(settings.elastic.index, movie)
 
     status, body = await call_film_detail(film_id)
+
     assert status == expected_status
 
     if status == HTTPStatus.UNPROCESSABLE_ENTITY:
@@ -98,15 +105,15 @@ async def test_film_detail_redis_cache(generate_movies, es_write_data, redis_cli
     film_uuid = 'ca5e7e12-3456-7890-abcd-ef1234567890'
     movie = generate_movies(count=1, film_uuid=film_uuid, title='CacheDetailTest')
     await es_write_data(settings.elastic.index, movie)
-
     cache_key = f'film:{film_uuid}'
 
     status1, film1 = await call_film_detail(film_uuid)
-    assert status1 == HTTPStatus.OK
 
+    assert status1 == HTTPStatus.OK
     assert await redis_client.exists(cache_key), f'Cache key {cache_key} not found after first request'
 
     status2, film2 = await call_film_detail(film_uuid)
+
     assert status2 == HTTPStatus.OK
     assert film1 == film2
 
@@ -116,9 +123,10 @@ async def test_film_detail_redis_cache(generate_movies, es_write_data, redis_cli
     other_uuid = 'db6f8f23-4567-8901-bcde-f12345678901'
     other_movie = generate_movies(count=1, film_uuid=other_uuid, title='OtherCacheTest')
     await es_write_data(settings.elastic.index, other_movie)
-
     other_cache_key = f'film:{other_uuid}'
+
     status3, film3 = await call_film_detail(other_uuid)
+
     assert status3 == HTTPStatus.OK
     assert await redis_client.exists(other_cache_key), 'New cache key not created for different film_id'
     assert not await redis_client.exists(f'film:{film_uuid}_wrong'), 'Wrong key pattern detected'
@@ -131,6 +139,7 @@ async def test_film_detail_response_schema(generate_movies, es_write_data):
     await es_write_data(settings.elastic.index, movie)
 
     status, film = await call_film_detail(film_uuid)
+
     assert status == HTTPStatus.OK
 
     assert isinstance(film['uuid'], str)
