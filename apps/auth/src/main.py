@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from redis.asyncio import Redis
 
+from api.v1.auth import router as auth_router
 from db.postgres import init_postgres, close_postgres
 from db.redis import close_redis
 from common.settings import get_settings
@@ -27,3 +28,4 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(auth_router, prefix='/api/v1')
