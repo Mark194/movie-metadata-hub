@@ -44,6 +44,12 @@ class ApiSettings(BaseModel):
     project_name: str
     url: str
 
+class JWTSettings(BaseModel):
+    secret_key: str
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+    refresh_token_expire_days: int = 7
+
 
 class Settings(BaseSettings):
     app: MigratorSettings
@@ -51,6 +57,7 @@ class Settings(BaseSettings):
     postgres: PostgresSettings
     redis: RedisSettings
     elastic: ElasticSettings
+    jwt: JwtSettings
 
     model_config = SettingsConfigDict(
         env_file=Path(__file__).resolve().parent.parent / '.env',
