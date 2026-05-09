@@ -20,7 +20,7 @@ class User(Base):
 
     def __init__(self, login: str, password: str, first_name: str, last_name: str) -> None:
         self.login = login
-        self.password = self.password = generate_password_hash(password)
+        self.password = generate_password_hash(password)
         self.first_name = first_name
         self.last_name = last_name
 
