@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -51,4 +52,24 @@ class PermissionAssign(BaseModel):
 
 class UserRoleAssign(BaseModel):
     user_id: UUID
+    role_id: UUID
+
+
+class ChangeLoginParams(BaseModel):
+    new_login: str = Field(..., min_length=3, max_length=255)
+    password: str
+
+
+class ChangePasswordParams(BaseModel):
+    old_password: str
+    new_password: str = Field(..., min_length=6)
+
+
+class LoginHistoryResponse(BaseModel):
+    id: UUID
+    user_id: UUID
+    login_at: datetime
+
+
+class RoleAssignParams(BaseModel):
     role_id: UUID
