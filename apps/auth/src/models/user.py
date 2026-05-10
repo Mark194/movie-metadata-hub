@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import Boolean, Column, DateTime, String
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -18,6 +19,8 @@ class User(Base):
     last_name = Column(String(50))
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    roles = relationship('Role', secondary='user_roles', back_populates='users')
+
     def __init__(self, login: str, password: str, first_name: str, last_name: str) -> None:
         self.login = login
         self.password = generate_password_hash(password)
@@ -28,4 +31,4 @@ class User(Base):
         return check_password_hash(self.password, password)
 
     def __repr__(self) -> str:
-        return f'<User {self.login}>'
+        return f'User {self.login}'
