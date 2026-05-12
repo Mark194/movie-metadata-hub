@@ -78,6 +78,10 @@ class AuthService:
             raise ValueError('Invalid or expired refresh token')
 
         stored_token = await self.cache.get(f'refresh:{user_id}')
+
+        if stored_token is not None and isinstance(stored_token, bytes):
+            stored_token = stored_token.decode('utf-8')
+
         if stored_token != refresh_token:
             raise ValueError('Refresh token not found or already used')
 
