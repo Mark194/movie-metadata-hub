@@ -2,19 +2,17 @@ from functools import lru_cache
 from http import HTTPStatus
 
 import jwt
-from dns.rdatatype import HTTPS
+from common import get_settings
+from db.postgres import get_postgres
+from db.redis import get_redis
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from redis.asyncio import Redis
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from common import get_settings
-from db.redis import get_redis
-from db.postgres import get_postgres
 from services.cache import CacheService
 from services.role import RoleService
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from apps.auth.src.models.user import User
+from models.user import User
 
 security = HTTPBearer()
 settings = get_settings()

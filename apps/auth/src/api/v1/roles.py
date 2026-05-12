@@ -23,7 +23,7 @@ async def get_roles(
     return roles
 
 
-@router.post('/roles', response_model=RoleResponse, status_code=status.HTTP_201_CREATED)
+@router.post('/roles', response_model=RoleResponse, status_code=HTTPStatus.CREATED)
 async def create_role(
         data: RoleCreate,
         service: RoleService = Depends(get_role_service)
@@ -57,11 +57,6 @@ async def update_role(
         return role
     except ValueError as e:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=str(e))
-
-
-@router.get('/roles/{id}')
-async def change_role(id):
-    pass
 
 
 @router.delete('/roles/{role_id}', status_code=HTTPStatus.NO_CONTENT)

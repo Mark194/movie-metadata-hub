@@ -33,6 +33,11 @@ class PostgresSettings(BaseModel):
         return (f'postgresql://{self.user}:{self.password}@'
                 f'{self.host}:{self.port}/{self.db}')
 
+    @property
+    def async_db_url(self):
+        return (f'postgresql+asyncpg://{self.user}:{self.password}@'
+                f'{self.host}:{self.port}/{self.db}')
+
 
 class MigratorSettings(BaseModel):
     batch_size: int
@@ -43,6 +48,7 @@ class MigratorSettings(BaseModel):
 class ApiSettings(BaseModel):
     project_name: str
     url: str
+
 
 class JWTSettings(BaseModel):
     secret_key: str
@@ -57,7 +63,7 @@ class Settings(BaseSettings):
     postgres: PostgresSettings
     redis: RedisSettings
     elastic: ElasticSettings
-    jwt: JwtSettings
+    jwt: JWTSettings
 
     model_config = SettingsConfigDict(
         env_file=Path(__file__).resolve().parent.parent / '.env',
