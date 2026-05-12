@@ -39,7 +39,7 @@ def get_auth_service(
 
 
 @lru_cache()
-async def get_role_service(db: AsyncSession = Depends(get_postgres)) -> RoleService:
+def get_role_service(db: AsyncSession = Depends(get_postgres)) -> RoleService:
     return RoleService(db)
 
 
