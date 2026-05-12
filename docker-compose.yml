@@ -108,6 +108,25 @@ services:
       elasticsearch:
         condition: service_healthy
 
+  auth:
+    build: apps/auth
+    env_file:
+      - .env
+    networks:
+      - etl_network
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./apps/common:/app/src/common
+    depends_on:
+      theatre-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    restart: unless-stopped
+
 networks:
   etl_network:
     driver: bridge
