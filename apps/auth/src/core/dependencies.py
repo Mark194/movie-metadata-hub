@@ -20,6 +20,7 @@ settings = get_settings()
 
 INVALID_TOKEN = 'Invalid token'
 USER_NOT_FOUND = 'User not found'
+FORBIDDEN = 'Forbidden'
 
 
 @lru_cache()
@@ -60,3 +61,19 @@ async def get_current_user(
     if not user:
         raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail=USER_NOT_FOUND)
     return user
+
+def require_permission(permission_name: str):
+    async def permission_checker(
+            current_user: User = Depends(get_current_user),
+            db: AsyncSession = Depends(get_postgres),
+    ):
+        if current_user.is_superuser:
+            return current_user
+
+        for role in current_user.roles:
+            for perm in role.permissions:
+                if perm.name == permission_name:
+                    return current_user
+        raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail=FORBIDDEN)
+
+    return permission_checker

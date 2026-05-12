@@ -18,6 +18,7 @@ class User(Base):
     first_name = Column(String(50))
     last_name = Column(String(50))
     created_at = Column(DateTime, default=datetime.utcnow)
+    is_superuser = Column(Boolean, default=False, nullable=False)
 
     roles = relationship('Role', secondary='user_roles', back_populates='users')
 
