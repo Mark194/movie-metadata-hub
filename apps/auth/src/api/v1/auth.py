@@ -59,5 +59,4 @@ async def refresh(
         tokens = await service.refresh(params.refresh_token)
         return tokens
     except ValueError as e:
-        print(f'Error: {str(e)}')
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
