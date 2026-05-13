@@ -1,9 +1,9 @@
 from uuid import UUID
 
 from fastapi import Request
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 
 from common.settings import get_settings
 from models.login_history import LoginHistory
@@ -93,4 +93,4 @@ class UserService:
         if user and role and role in user.roles:
             user.roles.remove(role)
             await self.db.commit()
-            await self.cache.delete('user_permissions:{user_id}')
+            await self.cache.delete(f'user_permissions:{user_id}')

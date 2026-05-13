@@ -9,7 +9,7 @@ _async_session_maker = None
 
 async def init_postgres(database_url: str):
     global _engine, _async_session_maker
-    _engine = create_async_engine(database_url, echo=True)
+    _engine = create_async_engine(database_url)
     _async_session_maker = async_sessionmaker(_engine, expire_on_commit=False)
 
 

@@ -1,9 +1,11 @@
 from http import HTTPStatus
 from uuid import UUID
 
-from api.v1.schemas import PermissionAssign, RoleCreate, RoleResponse, RoleUpdate
-from core.dependencies import get_role_service
 from fastapi import APIRouter, Depends, HTTPException
+
+from api.v1.schemas import PermissionAssign, RoleCreate, RoleResponse, RoleUpdate
+from core.dependencies import get_role_service, require_permission
+from models.user import User
 from services.role import RoleService
 
 router = APIRouter()
@@ -26,6 +28,7 @@ async def get_roles(
 @router.post('/roles', response_model=RoleResponse, status_code=HTTPStatus.CREATED)
 async def create_role(
         data: RoleCreate,
+        _: User = Depends(require_permission('roles:manage')),
         service: RoleService = Depends(get_role_service)
 ):
     try:
@@ -38,6 +41,7 @@ async def create_role(
 @router.get('/roles/{role_id}', response_model=RoleResponse)
 async def get_role(
         role_id: UUID,
+        _: User = Depends(require_permission('roles:view')),
         service: RoleService = Depends(get_role_service)
 ):
     role = await service.get_role(role_id)
@@ -50,6 +54,7 @@ async def get_role(
 async def update_role(
         role_id: UUID,
         data: RoleUpdate,
+        _: User = Depends(require_permission('roles:manage')),
         service: RoleService = Depends(get_role_service)
 ):
     try:
@@ -62,6 +67,7 @@ async def update_role(
 @router.delete('/roles/{role_id}', status_code=HTTPStatus.NO_CONTENT)
 async def delete_role(
         role_id: UUID,
+        _: User = Depends(require_permission('roles:manage')),
         service: RoleService = Depends(get_role_service)
 ):
     await service.delete_role(role_id)

@@ -24,10 +24,6 @@ async def lifespan(app: FastAPI):
 
     await init_postgres(settings.postgres.async_db_url)
 
-    from db.postgres import _engine
-    async with _engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
     yield
 
     await close_redis()

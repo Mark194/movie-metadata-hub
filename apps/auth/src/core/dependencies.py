@@ -2,23 +2,27 @@ from functools import lru_cache
 from http import HTTPStatus
 
 import jwt
-from common import get_settings
-from db.postgres import get_postgres
-from db.redis import get_redis
+
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from redis.asyncio import Redis
-from services.cache import CacheService
-from services.role import RoleService
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from common import get_settings
+from db.postgres import get_postgres
+from db.redis import get_redis
 from models.user import User
+from services.auth import AuthService
+from services.cache import CacheService
+from services.role import RoleService
+from services.user import UserService
 
 security = HTTPBearer()
 settings = get_settings()
 
-
 INVALID_TOKEN = 'Invalid token'
+INVALID_TOKEN_PAYLOAD = 'Invalid token payload'
+TOKEN_REVOKED = 'Token revoked'
 USER_NOT_FOUND = 'User not found'
 FORBIDDEN = 'Forbidden'
 
@@ -35,7 +39,6 @@ def get_auth_service(
         cache_service: CacheService = Depends(get_cache_service),
         postgres: AsyncSession = Depends(get_postgres),
 ):
-    from services.auth import AuthService
     return AuthService(cache_service, postgres)
 
 
@@ -44,16 +47,33 @@ def get_role_service(db: AsyncSession = Depends(get_postgres)) -> RoleService:
     return RoleService(db)
 
 
+async def get_user_service(
+        db: AsyncSession = Depends(get_postgres),
+        cache: CacheService = Depends(get_cache_service),
+) -> UserService:
+    return UserService(db, cache)
+
+
+async def get_access_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+    return credentials.credentials
+
+
 async def get_current_user(
         credentials: HTTPAuthorizationCredentials = Depends(security),
         db: AsyncSession = Depends(get_postgres),
+        cache: CacheService = Depends(get_cache_service),  # добавить зависимость
 ) -> User:
     token = credentials.credentials
     try:
         payload = jwt.decode(token, settings.jwt.secret_key, algorithms=[settings.jwt.algorithm])
-        user_id = payload.get('sub')
-        if not user_id:
-            raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail=INVALID_TOKEN)
+        user_id = payload.get("sub")
+        jti = payload.get("jti")
+        if not user_id or not jti:
+            raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail=INVALID_TOKEN_PAYLOAD)
+
+        if await cache.get(f'blacklist:{jti}'):
+            raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail=TOKEN_REVOKED)
+
     except jwt.PyJWTError:
         raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail=INVALID_TOKEN)
 
@@ -61,6 +81,7 @@ async def get_current_user(
     if not user:
         raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail=USER_NOT_FOUND)
     return user
+
 
 def require_permission(permission_name: str):
     async def permission_checker(

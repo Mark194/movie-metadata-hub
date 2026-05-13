@@ -5,7 +5,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.v1.schemas import ChangeLoginParams, ChangePasswordParams, LoginHistoryResponse, RoleAssignParams
-from core.dependencies import get_current_user, get_postgres, get_cache_service
+from core.dependencies import get_current_user, get_postgres, get_cache_service, require_permission
 from services.user import UserService
 from services.cache import CacheService
 from models.user import User
@@ -16,13 +16,6 @@ PASSWORD_CHANGED = {'message': 'Password changed successfully'}
 REQUIRED_ADMIN_ROLE = 'Admin role required'
 ADMIN_ROLE = 'admin'
 INVALID_USER_OR_ROLE = 'Invalid user or role'
-
-
-async def get_user_service(
-        db: AsyncSession = Depends(get_postgres),
-        cache: CacheService = Depends(get_cache_service),
-) -> UserService:
-    return UserService(db, cache)
 
 
 @router.put('/user/login')
@@ -66,11 +59,9 @@ async def get_login_history(
 async def assign_role_to_user(
         user_id: UUID,
         params: RoleAssignParams,
-        current_user: User = Depends(get_current_user),
+        _: User = Depends(require_permission('roles:assign')),
         service: UserService = Depends(get_user_service),
 ):
-    if not any(role.name == ADMIN_ROLE for role in current_user.roles):
-        raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail=REQUIRED_ADMIN_ROLE)
     try:
         await service.assign_role_to_user(user_id, params.role_id)
         return None
@@ -82,11 +73,9 @@ async def assign_role_to_user(
 async def remove_role_from_user(
         user_id: UUID,
         role_id: UUID,
-        current_user: User = Depends(get_current_user),
+        _: User = Depends(require_permission('roles:revoke')),
         service: UserService = Depends(get_user_service),
 ):
-    if not any(role.name == ADMIN_ROLE for role in current_user.roles):
-        raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail=REQUIRED_ADMIN_ROLE)
     try:
         await service.remove_role_from_user(user_id, role_id)
         return None
