@@ -21,4 +21,5 @@ include(
     "components/database.py",
     "components/lang.py",
     "components/security.py",
+    "components/auth.py",
 )

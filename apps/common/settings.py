@@ -57,6 +57,12 @@ class JWTSettings(BaseModel):
     refresh_token_expire_days: int = 7
 
 
+class AuthSettings(BaseModel):
+    url: str
+    timeout: int
+    cache_ttl: int
+
+
 class AdminSettings(BaseModel):
     secret_key: str
     debug: bool
@@ -65,6 +71,7 @@ class AdminSettings(BaseModel):
 class Settings(BaseSettings):
     app: MigratorSettings
     api: ApiSettings
+    auth: AuthSettings
     postgres: PostgresSettings
     redis: RedisSettings
     elastic: ElasticSettings

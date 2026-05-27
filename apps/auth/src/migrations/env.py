@@ -11,11 +11,22 @@ sys.path.append(str(Path(__file__).parent.parent.parent / "src"))
 
 from db.postgres import Base
 from common.settings import get_settings
+from models.login_history import LoginHistory
+from models.permission import Permission
+from models.role import Role
+from models.user import User
 
 config = context.config
 fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
+
+def include_object(object, name, type_, reflected, compare_to):
+    if type_ == "table":
+        if name in target_metadata.tables:
+            return True
+        return False
+    return True
 
 def run_migrations_offline():
     settings = get_settings()
@@ -29,7 +40,7 @@ def run_migrations_offline():
         context.run_migrations()
 
 def do_run_migrations(connection):
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(connection=connection, target_metadata=target_metadata, include_object=include_object)
     with context.begin_transaction():
         context.run_migrations()
 

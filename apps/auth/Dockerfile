@@ -9,11 +9,9 @@ COPY . .
 
 WORKDIR /app/src
 
-CMD ["alembic", "upgrade", "head"]
-CMD ["python", "-m", "uvicorn", "main:app", \
-     "--host", "0.0.0.0", \
-     "--port", "8000", \
-     "--workers", "4", \
-     "--loop", "auto", \
-     "--http", "auto", \
-     "--log-level", "info"]
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+WORKDIR /app/src
+
+ENTRYPOINT ["/entrypoint.sh"]
