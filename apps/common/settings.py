@@ -57,6 +57,11 @@ class JWTSettings(BaseModel):
     refresh_token_expire_days: int = 7
 
 
+class AdminSettings(BaseModel):
+    secret_key: str
+    debug: bool
+
+
 class Settings(BaseSettings):
     app: MigratorSettings
     api: ApiSettings
@@ -64,6 +69,7 @@ class Settings(BaseSettings):
     redis: RedisSettings
     elastic: ElasticSettings
     jwt: JWTSettings
+    admin: AdminSettings
 
     model_config = SettingsConfigDict(
         env_file=Path(__file__).resolve().parent.parent / '.env',
