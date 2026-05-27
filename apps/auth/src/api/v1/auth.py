@@ -1,7 +1,6 @@
 from http import HTTPStatus
-from urllib.request import Request
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from api.v1.schemas import RegistrationParams, AuthParams, RefreshParams, LogoutParams, TokenResponse
 from api.v1.users import get_user_service

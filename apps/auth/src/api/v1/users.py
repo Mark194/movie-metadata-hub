@@ -5,7 +5,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.v1.schemas import ChangeLoginParams, ChangePasswordParams, LoginHistoryResponse, RoleAssignParams
-from core.dependencies import get_current_user, get_postgres, get_cache_service, require_permission
+from core.dependencies import get_current_user, get_postgres, get_cache_service, require_permission, get_user_service
 from services.user import UserService
 from services.cache import CacheService
 from models.user import User
