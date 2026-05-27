@@ -1,0 +1,11 @@
+django==4.2.11
+flake8==6.1.0
+python-dotenv==1.2.1
+psycopg-binary==3.1.18
+psycopg2-binary>=2.9
+split-settings==1.0.0
+uvicorn[standard]>=0.24.0
+pydantic==2.12.5
+pydantic-settings==2.13.1
+pydantic_core==2.41.5
+whitenoise==6.7.0

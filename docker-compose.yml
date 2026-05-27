@@ -127,6 +127,20 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  admin:
+    build: apps/admin
+    env_file:
+      - .env
+    networks:
+      - etl_network
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./apps/common:/app/common
+    depends_on:
+      theatre-db:
+        condition: service_healthy
+
 networks:
   etl_network:
     driver: bridge
