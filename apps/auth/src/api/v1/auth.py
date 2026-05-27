@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from api.v1.schemas import RegistrationParams, AuthParams, RefreshParams, LogoutParams, TokenResponse
 from api.v1.users import get_user_service
 from core.dependencies import get_access_token, get_auth_service
+from core.rate_limit import limiter
 from services.auth import AuthService
 from services.user import UserService
 
@@ -24,6 +25,7 @@ async def register(
 
 
 @router.post('/auth/login', response_model=TokenResponse)
+@limiter.limit('5/minute')
 async def login(
         params: AuthParams,
         request: Request,

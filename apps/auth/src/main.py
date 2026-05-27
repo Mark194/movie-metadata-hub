@@ -6,6 +6,9 @@ from redis.asyncio import Redis
 from api.v1.auth import router as auth_router
 from api.v1.roles import router as roles_router
 from api.v1.users import router as users_router
+from core.rate_limit import setup_rate_limiting
+from core.tracing import setup_tracing
+from core.request_id import RequestIDMiddleware
 from db.postgres import init_postgres, close_postgres, Base
 from db import redis
 from db.redis import close_redis
@@ -35,6 +38,13 @@ app = FastAPI(
     docs_url='/api/openapi',
     openapi_url='/api/openapi.json',
 )
+
+app.add_middleware(RequestIDMiddleware)
+
+tracer = setup_tracing(app, service_name="auth-service")
+
+setup_rate_limiting(app)
+
 app.include_router(auth_router, prefix=APP_PREFIX)
 app.include_router(roles_router, prefix=APP_PREFIX)
 app.include_router(users_router, prefix=APP_PREFIX)
