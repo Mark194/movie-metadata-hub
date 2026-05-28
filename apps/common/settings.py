@@ -68,6 +68,17 @@ class AdminSettings(BaseModel):
     debug: bool
 
 
+class OAuthProviderSettings(BaseModel):
+    client_id: str
+    client_secret: str
+    redirect_uri: str
+
+
+class OAuthSettings(BaseModel):
+    yandex: OAuthProviderSettings
+    vk: OAuthProviderSettings
+
+
 class Settings(BaseSettings):
     app: MigratorSettings
     api: ApiSettings
@@ -77,6 +88,7 @@ class Settings(BaseSettings):
     elastic: ElasticSettings
     jwt: JWTSettings
     admin: AdminSettings
+    oauth: OAuthSettings
 
     model_config = SettingsConfigDict(
         env_file=Path(__file__).resolve().parent.parent / '.env',

@@ -16,6 +16,7 @@ from services.auth import AuthService
 from services.cache import CacheService
 from services.role import RoleService
 from services.user import UserService
+from services.oauth import OAuthService
 
 security = HTTPBearer()
 settings = get_settings()
@@ -98,3 +99,10 @@ def require_permission(permission_name: str):
         raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail=FORBIDDEN)
 
     return permission_checker
+
+
+async def get_oauth_service(
+        db: AsyncSession = Depends(get_postgres),
+        auth_service: AuthService = Depends(get_auth_service),
+) -> OAuthService:
+    return OAuthService(db, auth_service)

@@ -142,7 +142,7 @@ class AuthService:
             'token_type': 'bearer'
         }
 
-    def _create_access_token(self, user_id: str) -> tuple[str, str]:
+    def create_access_token(self, user_id: str) -> tuple[str, str]:
         jti = str(uuid.uuid4())
         expire = datetime.utcnow() + timedelta(minutes=settings.jwt.access_token_expire_minutes)
         payload = {
@@ -154,7 +154,7 @@ class AuthService:
         token = jwt.encode(payload, settings.jwt.secret_key, algorithm=settings.jwt.algorithm)
         return token
 
-    def _create_refresh_token(self, user_id: str) -> str:
+    def create_refresh_token(self, user_id: str) -> str:
         expire = datetime.utcnow() + timedelta(days=settings.jwt.refresh_token_expire_days)
         payload = {'sub': user_id, 'exp': expire, 'type': 'refresh'}
         return jwt.encode(payload, settings.jwt.secret_key, algorithm=settings.jwt.algorithm)

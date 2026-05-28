@@ -21,6 +21,7 @@ class User(Base):
     is_superuser = Column(Boolean, default=False, nullable=False)
 
     roles = relationship('Role', secondary='user_roles', back_populates='users')
+    social_accounts = relationship('SocialAccount', back_populates='user', cascade='all, delete-orphan')
 
     def __init__(self, login: str, password: str, first_name: str, last_name: str) -> None:
         self.login = login
