@@ -42,7 +42,8 @@ app = FastAPI(
 
 app.add_middleware(RequestIDMiddleware)
 
-tracer = setup_tracing(app, service_name="auth-service")
+if config.auth.with_tracing:
+    tracer = setup_tracing(app, service_name="auth-service")
 
 setup_rate_limiting(app)
 

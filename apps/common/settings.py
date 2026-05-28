@@ -61,6 +61,7 @@ class AuthSettings(BaseModel):
     url: str
     timeout: int
     cache_ttl: int
+    with_tracing: bool
 
 
 class AdminSettings(BaseModel):
