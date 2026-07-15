@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from common import get_settings
-from models import Base
+from models.notify import Base
 
 config = get_settings()
 
