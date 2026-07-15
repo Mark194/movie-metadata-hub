@@ -5,7 +5,7 @@ from db.postgres import get_db
 from common import get_logger
 from external_services.user_service import UserService
 from external_services.senders import send_email, send_sms, send_push
-from models import Notification, NotificationStatus, NotificationType, Template
+from models.notify import Notification, NotificationStatus, NotificationType, Template
 from sqlalchemy import func
 
 logger = getLogger(__name__)
