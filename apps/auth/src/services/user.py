@@ -94,3 +94,13 @@ class UserService:
             user.roles.remove(role)
             await self.db.commit()
             await self.cache.delete(f'user_permissions:{user_id}')
+
+    async def get_user_by_id(self, user_id: int) -> User | None:
+        return await self.db.get(User, user_id)
+
+    async def get_all_users(self):
+        stmt = (
+            select(User)
+        )
+        result = await self.db.execute(stmt)
+        return result.scalars().all()

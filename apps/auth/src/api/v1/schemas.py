@@ -73,3 +73,13 @@ class LoginHistoryResponse(BaseModel):
 
 class RoleAssignParams(BaseModel):
     role_id: UUID
+
+
+class UserOut(BaseModel):
+    id: int
+    email: str
+    name: str
+    phone: str | None = None
+
+    class Config:
+        from_attributes = True

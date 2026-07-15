@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.v1.schemas import ChangeLoginParams, ChangePasswordParams, LoginHistoryResponse, RoleAssignParams
+from api.v1.schemas import ChangeLoginParams, ChangePasswordParams, LoginHistoryResponse, RoleAssignParams, UserOut
 from core.dependencies import get_current_user, get_postgres, get_cache_service, require_permission, get_user_service
 from services.user import UserService
 from services.cache import CacheService
@@ -81,3 +81,21 @@ async def remove_role_from_user(
         return None
     except ValueError:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=INVALID_USER_OR_ROLE)
+
+
+@router.get("/", response_model=list[UserOut])
+def get_all_users(service: UserService = Depends(get_user_service)):
+    users = service.get_users()
+    return users
+
+
+@router.get("/{user_id}", response_model=UserOut)
+def get_user(
+        user_id: UUID,
+        _: User = Depends(require_permission('roles:revoke')),
+        service: UserService = Depends(get_user_service)
+):
+    user = service.get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user

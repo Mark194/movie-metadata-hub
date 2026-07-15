@@ -80,6 +80,12 @@ class OAuthSettings(BaseModel):
     vk: OAuthProviderSettings
 
 
+class NotifierSettings(BaseSettings):
+    celery_url: str
+    celery_backend: str
+    notifier_bd: str
+
+
 class Settings(BaseSettings):
     app: MigratorSettings
     api: ApiSettings
@@ -90,6 +96,7 @@ class Settings(BaseSettings):
     jwt: JWTSettings
     admin: AdminSettings
     oauth: OAuthSettings
+    notify: NotifierSettings
 
     model_config = SettingsConfigDict(
         env_file=Path(__file__).resolve().parent.parent / '.env',
