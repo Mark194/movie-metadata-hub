@@ -12,4 +12,4 @@ app = FastAPI(
 )
 logger = get_logger(__name__)
 
-app.include_router(notify.router, prefix='/api/', tags=['notify'])
+app.include_router(notify.router, prefix='/api', tags=['notify'])
