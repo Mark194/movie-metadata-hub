@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
-from api.v1 import notify
+from api import notify
 from common import get_logger
 
 app = FastAPI(
