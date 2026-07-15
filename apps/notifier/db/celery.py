@@ -18,6 +18,3 @@ celery_app.conf.update(
     timezone='UTC',
     enable_utc=True,
 )
-
-# Автоматическое обнаружение задач
-celery_app.autodiscover_tasks(['tasks'])
