@@ -6,3 +6,6 @@ celery
 redis
 jinja2
 requests
+pydantic
+pydantic-settings
+pydantic_core
