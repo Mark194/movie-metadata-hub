@@ -1,9 +1,11 @@
 from http import HTTPStatus
-from http.client import HTTPException
+from typing import Dict
 
-from fastapi import APIRouter, BackgroundTasks, Depends
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.dependencies import get_current_user, require_admin
 from api.schemas import EventPayload, BroadcastPayload, PersonalizedPayload, FreePayload
 from db.postgres import get_db
 from models.notify import Notification, Template
@@ -13,14 +15,20 @@ router = APIRouter()
 
 
 @router.post('/notify/event')
-async def handle_event(payload: EventPayload, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+async def handle_event(
+        payload: EventPayload,
+        background_tasks: BackgroundTasks,
+        db: AsyncSession = Depends(get_db)
+):
     # Определяем шаблон и параметры в зависимости от event_type
     if payload.event_type == 'user_registered':
         # Отправляем приветственное письмо конкретному пользователю
         if not payload.user_id:
             raise HTTPException(HTTPStatus.NOT_FOUND, 'user_id required for user_registered')
-        # Ищем шаблон с именем 'user_registered'
-        template = db.query(Template).filter(Template.name == 'user_registered').first()
+        # Ищем шаблон с именем 'user_registered' асинхронно
+        stmt = select(Template).where(Template.name == 'user_registered')
+        result = await db.execute(stmt)
+        template = result.scalar_one_or_none()
         if not template:
             raise HTTPException(HTTPStatus.INTERNAL_SERVER_ERROR, 'Template for user_registered not configured')
         send_notification.delay(payload.user_id, template_id=template.id)
@@ -28,7 +36,9 @@ async def handle_event(payload: EventPayload, background_tasks: BackgroundTasks,
 
     elif payload.event_type == 'new_movie':
         # Отправляем всем пользователям уведомление о новом фильме
-        template = db.query(Template).filter(Template.name == 'new_movie').first()
+        stmt = select(Template).where(Template.name == 'new_movie')
+        result = await db.execute(stmt)
+        template = result.scalar_one_or_none()
         if not template:
             raise HTTPException(HTTPStatus.INTERNAL_SERVER_ERROR, 'Template for new_movie not configured')
         context = {'movie_id': payload.movie_id} if payload.movie_id else {}
@@ -40,7 +50,10 @@ async def handle_event(payload: EventPayload, background_tasks: BackgroundTasks,
 
 
 @router.post('/notify/broadcast')
-async def broadcast(payload: BroadcastPayload):
+async def broadcast(
+        payload: BroadcastPayload,
+        admin: Dict = Depends(require_admin)
+):
     broadcast_notification.delay(
         template_id=payload.template_id,
         context=payload.context,
@@ -52,7 +65,13 @@ async def broadcast(payload: BroadcastPayload):
 
 
 @router.post('/notify/personalized')
-async def personalized(payload: PersonalizedPayload):
+async def personalized(
+        payload: PersonalizedPayload,
+        current_user: Dict = Depends(get_current_user)
+):
+    if payload.user_id != current_user['user_id']:
+        raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail='Not allowed to send for another user')
+
     send_notification.delay(
         user_id=payload.user_id,
         template_id=payload.template_id,
@@ -65,7 +84,13 @@ async def personalized(payload: PersonalizedPayload):
 
 
 @router.post('/notify/free')
-async def free_notification(payload: FreePayload):
+async def free_notification(
+        payload: FreePayload,
+        current_user: dict = Depends(get_current_user)
+):
+    if payload.user_id != current_user['user_id']:
+        raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail='Not allowed to send for another user')
+
     send_notification.delay(
         user_id=payload.user_id,
         template_id=payload.template_id,
@@ -77,10 +102,20 @@ async def free_notification(payload: FreePayload):
 
 
 @router.get('/notifications/{user_id}')
-async def get_user_notifications(user_id: int, limit: int = 10, db: Session = Depends(get_db)):
-    notifs = db.query(Notification).filter(Notification.user_id == user_id) \
-        .order_by(Notification.created_at.desc()).limit(limit).all()
+async def get_user_notifications(
+        user_id: int,
+        limit: int = 10,
+        db: AsyncSession = Depends(get_db),
+        current_user: dict = Depends(get_current_user)):
+
+    if user_id != current_user['user_id'] and current_user['role'] != 'admin':
+        raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail='Access denied')
+
+    stmt = select(Notification).where(Notification.user_id == user_id) \
+        .order_by(Notification.created_at.desc()).limit(limit)
     result = []
+    result_operation = await db.execute(stmt)
+    notifs = result_operation.scalars().all()
     for n in notifs:
         result.append({
             'id': n.id,

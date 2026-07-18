@@ -1,4 +1,7 @@
 import enum
+import uuid
+
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import Column, Integer, String, DateTime, Text, Enum, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
@@ -30,7 +33,7 @@ class Template(Base):
 class Notification(Base):
     __tablename__ = 'notifications'
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, nullable=False, index=True)
+    user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     template_id = Column(Integer, ForeignKey('templates.id'), nullable=True)
     subject = Column(String(200), nullable=True)  # финальный сабжект
     body = Column(Text, nullable=True)  # финальный текст

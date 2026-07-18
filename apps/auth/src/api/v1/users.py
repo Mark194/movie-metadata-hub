@@ -84,18 +84,18 @@ async def remove_role_from_user(
 
 
 @router.get('/users', response_model=list[UserOut])
-def get_all_users(service: UserService = Depends(get_user_service)):
-    users = service.get_users()
+async def get_all_users(service: UserService = Depends(get_user_service)):
+    users = await service.get_users()
     return users
 
 
 @router.get('/users/{user_id}', response_model=UserOut)
-def get_user(
+async def get_user(
         user_id: UUID,
         _: User = Depends(require_permission('roles:revoke')),
         service: UserService = Depends(get_user_service)
 ):
-    user = service.get_user(user_id)
+    user = await service.get_user(user_id)
     if not user:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='User not found')
     return user

@@ -1,22 +1,16 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.orm import declarative_base
 
 from common import get_settings
-from models.notify import Base
 
 config = get_settings()
 
-engine_kwargs = {}
+engine = create_async_engine(config.notify.notifier_bd, echo=True)
+AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
-engine = create_engine(config.notify.notifier_bd, **engine_kwargs)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
 
-# Создание таблиц (при необходимости)
-Base.metadata.create_all(bind=engine)
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+async def get_db() -> AsyncSession:
+    async with AsyncSessionLocal() as session:
+        yield session

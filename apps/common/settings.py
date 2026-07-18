@@ -62,6 +62,7 @@ class AuthSettings(BaseModel):
     timeout: int
     cache_ttl: int
     with_tracing: bool
+    internal_api_token: str
 
 
 class AdminSettings(BaseModel):

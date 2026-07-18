@@ -9,3 +9,6 @@ requests
 pydantic
 pydantic-settings
 pydantic_core
+python-jose[cryptography]
+asyncpg
+sqlalchemy[asyncio]
