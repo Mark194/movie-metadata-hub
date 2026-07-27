@@ -8,8 +8,8 @@ FORMAT = 'json'
 
 celery_app = Celery(
     'billing_worker',
-    broker=settings.celery_broker_url,
-    backend=settings.celery_result_backend,
+    broker=settings.notify.celery_url,
+    backend=settings.notify.celery_backend,
 )
 celery_app.conf.update(
     task_serializer=FORMAT,
