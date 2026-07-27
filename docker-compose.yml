@@ -195,6 +195,8 @@ services:
       - "8004:8000"
     depends_on: [ theatre-db, redis, auth ]
     restart: unless-stopped
+    volumes:
+      - ./apps/common:/app/common
 
   billing-worker:
     build: apps/billing
@@ -204,6 +206,8 @@ services:
     command: celery -A services.celery_app worker --loglevel=info --uid=nobody
     depends_on: [ theatre-db, redis, auth ]
     restart: unless-stopped
+    volumes:
+      - ./apps/common:/app/common
 
 networks:
   etl_network:
