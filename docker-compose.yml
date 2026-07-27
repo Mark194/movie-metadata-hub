@@ -186,6 +186,24 @@ services:
         condition: service_started
     restart: unless-stopped
 
+  billing:
+    build: apps/billing
+    image: billing-image
+    env_file: .env
+    networks: [ etl_network ]
+    ports: [ "8004:8000" ]
+    depends_on: [ theatre-db, redis, auth ]
+    restart: unless-stopped
+
+  billing-worker:
+    build: apps/billing
+    image: billing-image
+    env_file: .env
+    networks: [ etl_network ]
+    command: celery -A services.celery_app worker --loglevel=info --uid=nobody
+    depends_on: [ theatre-db, redis, auth ]
+    restart: unless-stopped
+
 networks:
   etl_network:
     driver: bridge

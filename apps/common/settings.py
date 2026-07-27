@@ -87,6 +87,13 @@ class NotifierSettings(BaseSettings):
     notifier_bd: str
 
 
+class BillingSettings(BaseModel):
+    payment_gateway_url: str
+    payment_timeout: int
+    default_trial_days: int
+    promo_code_length: int
+
+
 class Settings(BaseSettings):
     app: MigratorSettings
     api: ApiSettings
@@ -98,6 +105,7 @@ class Settings(BaseSettings):
     admin: AdminSettings
     oauth: OAuthSettings
     notify: NotifierSettings
+    billing: BillingSettings
 
     model_config = SettingsConfigDict(
         env_file=Path(__file__).resolve().parent.parent / '.env',
