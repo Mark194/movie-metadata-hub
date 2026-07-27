@@ -2,9 +2,6 @@ from fastapi import FastAPI
 from api.v1 import promo, subscription, admin
 from db.database import engine, Base
 from contextlib import asynccontextmanager
-import logging
-
-logging.basicConfig(level=logging.INFO)
 
 
 @asynccontextmanager
