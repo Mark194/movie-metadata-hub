@@ -191,7 +191,8 @@ services:
     image: billing-image
     env_file: .env
     networks: [ etl_network ]
-    ports: [ "8004:8000" ]
+    ports:
+      - "8004:8000"
     depends_on: [ theatre-db, redis, auth ]
     restart: unless-stopped
 
