@@ -10,3 +10,4 @@ redis
 python-jose[cryptography]
 requests
 jinja2
+psycopg2-binary
