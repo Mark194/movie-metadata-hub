@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from uuid import UUID
 
-from commmon import get_settings
+from common import get_settings
 from core.dependencies import get_user_service
 from fastapi import APIRouter, Header, HTTPException, Depends, Query
 from services.user import UserService

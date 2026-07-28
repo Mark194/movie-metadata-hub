@@ -4,7 +4,7 @@ from celery import Celery
 from jinja2 import Template as JinjaTemplate
 from sqlalchemy import func
 
-from db.sync_database import SyncSessionLocal
+from db.sync_postgres import SyncSessionLocal
 from models.notify import Notification, NotificationStatus, Template
 from external_services.user_service import UserService
 from external_services.senders import send_email, send_sms, send_push

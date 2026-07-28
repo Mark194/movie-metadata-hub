@@ -208,6 +208,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./apps/common:/app/common
+    environment:
+      - PYTHONPATH=/app
 
 networks:
   etl_network:

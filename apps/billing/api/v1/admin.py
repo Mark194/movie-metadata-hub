@@ -7,7 +7,7 @@ from api.dependencies import require_admin
 from api.schemas import ApplyPromoAdminRequest, PromoCodeCreate, PromoCodeUpdate, PromoCodeResponse
 from db.database import get_db
 from db.models import PromoCodeStatus
-from services.promo_service import AdminPromoService
+from services.admin_promo_service import AdminPromoService
 
 router = APIRouter(prefix='/admin/promo', tags=['admin'])
 

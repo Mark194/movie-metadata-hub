@@ -15,6 +15,7 @@ router = APIRouter()
 @router.post('/auth/register', status_code=status.HTTP_201_CREATED)
 @limiter.limit('10/minute')
 async def register(
+        request: Request,
         params: RegistrationParams,
         service: AuthService = Depends(get_auth_service),
 ):
