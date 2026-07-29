@@ -9,17 +9,16 @@ from services.promo_service import PromoService
 router = APIRouter(prefix='/promo', tags=['promo'])
 
 
-@router.post('/apply')
+@router.post('/apply', response_model=ApplyPromoResponse)
 async def apply_promo(
         req: ApplyPromoRequest,
         current_user: dict = Depends(get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
-    result = await PromoService.validate_and_apply(req.promo_code, current_user['user_id'], db)
-    return result
+    return await PromoService.validate_and_apply(req.promo_code, current_user['user_id'], db)
 
 
-@router.post('/confirm-payment')
+@router.post('/confirm-payment', response_model=dict)
 async def confirm_payment(
         req: ConfirmPaymentRequest,
         current_user: dict = Depends(get_current_user),

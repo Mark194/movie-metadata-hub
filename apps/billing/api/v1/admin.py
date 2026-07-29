@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.dependencies import require_admin
-from api.schemas import ApplyPromoAdminRequest, PromoCodeCreate, PromoCodeUpdate, PromoCodeResponse
+from api.schemas import (ApplyPromoAdminRequest, PromoCodeCreate, PromoCodeUpdate, PromoCodeResponse,
+                         GenerateCodesResponce)
 from db.database import get_db
 from db.models import PromoCodeStatus
 from services.admin_promo_service import AdminPromoService
@@ -14,7 +15,7 @@ from apps.billing.api.schemas import GenerateCodesRequest
 router = APIRouter(prefix='/admin/promo', tags=['admin'])
 
 
-@router.post('/create')
+@router.post('/create', response_model=PromoCodeResponse)
 async def create_promo(
         data: PromoCodeCreate,
         admin: dict = Depends(require_admin),
@@ -23,7 +24,7 @@ async def create_promo(
     return await AdminPromoService.create(data, admin['user_id'], db)
 
 
-@router.get('/list')
+@router.get('/list', response_model=list[PromoCodeResponse])
 async def list_promo(
         skip: int = Query(0, ge=0),
         limit: int = Query(100, ge=1, le=1000),
@@ -35,7 +36,7 @@ async def list_promo(
     return await AdminPromoService.list_all(db, skip, limit, status, code_filter)
 
 
-@router.post('/generate')
+@router.post('/generate', response_model=GenerateCodesResponce)
 async def generate_codes(
         req: GenerateCodesRequest,
         admin: dict = Depends(require_admin),

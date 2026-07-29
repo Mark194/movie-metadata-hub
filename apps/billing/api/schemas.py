@@ -73,3 +73,9 @@ class GenerateCodesResponse(BaseModel):
 class ApplyPromoAdminRequest(BaseModel):
     promo_code: str
     user_id: UUID
+
+
+class SubscriptionResponse(BaseModel):
+    plan: str
+    is_active: bool
+    end_date: datetime | None = None
