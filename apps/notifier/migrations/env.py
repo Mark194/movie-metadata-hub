@@ -1,12 +1,25 @@
 import asyncio
+import sys
 from logging.config import fileConfig
+from pathlib import Path
+
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
-from db.postgres import Base  # ваш Base
-from config import Config
 
+# Добавляем корень проекта в sys.path, чтобы импортировать модули
+sys.path.append(str(Path(__file__).parent.parent.parent.parent))  # теперь видно apps/billing/..
+
+# Загружаем .env (можно вынести в settings, но для верности)
+from dotenv import load_dotenv
+env_path = Path(__file__).parent.parent.parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
+
+from db.postgres import Base  # ваш Base
+from common.settings import get_settings
+
+settings = get_settings()
 config = context.config
 
 if config.config_file_name is not None:
@@ -15,7 +28,7 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 def run_migrations_offline() -> None:
-    url = Config.DATABASE_URL
+    url = settings.postgres.db_url
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -32,7 +45,7 @@ def do_run_migrations(connection: Connection) -> None:
 
 async def run_async_migrations() -> None:
     configuration = config.get_section(config.config_ini_section)
-    configuration["sqlalchemy.url"] = Config.DATABASE_URL
+    configuration["sqlalchemy.url"] = settings.postgres.async_db_url
     connectable = async_engine_from_config(
         configuration,
         prefix="sqlalchemy.",

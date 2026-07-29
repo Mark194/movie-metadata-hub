@@ -1,37 +1,36 @@
 import asyncio
 import sys
-from pathlib import Path
 from logging.config import fileConfig
+from pathlib import Path
 
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy import pool
+from sqlalchemy.engine import Connection
+from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
-# Добавляем путь к исходникам вашего приложения
-sys.path.append(str(Path(__file__).parent.parent.parent / "src"))
+# Добавляем корень проекта в sys.path, чтобы импортировать модули
+sys.path.append(str(Path(__file__).parent.parent.parent.parent.parent))  # теперь видно apps/billing/..
 
-from db.postgres import Base
+# Загружаем .env (можно вынести в settings, но для верности)
+from dotenv import load_dotenv
+env_path = Path(__file__).parent.parent.parent.parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
+
+from db.postgres import Base  # ваш Base
 from common.settings import get_settings
-from models.login_history import LoginHistory
-from models.permission import Permission
-from models.role import Role
-from models.user import User
 
+settings = get_settings()
 config = context.config
-fileConfig(config.config_file_name)
+
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
 
-def include_object(object, name, type_, reflected, compare_to):
-    if type_ == "table":
-        if name in target_metadata.tables:
-            return True
-        return False
-    return True
-
-def run_migrations_offline():
-    settings = get_settings()
+def run_migrations_offline() -> None:
+    url = settings.postgres.db_url
     context.configure(
-        url=settings.postgres.async_db_url,
+        url=url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -39,21 +38,27 @@ def run_migrations_offline():
     with context.begin_transaction():
         context.run_migrations()
 
-def do_run_migrations(connection):
-    context.configure(connection=connection, target_metadata=target_metadata, include_object=include_object)
+def do_run_migrations(connection: Connection) -> None:
+    context.configure(connection=connection, target_metadata=target_metadata)
     with context.begin_transaction():
         context.run_migrations()
 
-async def run_migrations_online():
-    settings = get_settings()
-    engine = create_async_engine(settings.postgres.async_db_url)
-
-    async with engine.connect() as connection:
+async def run_async_migrations() -> None:
+    configuration = config.get_section(config.config_ini_section)
+    configuration["sqlalchemy.url"] = settings.postgres.async_db_url
+    connectable = async_engine_from_config(
+        configuration,
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
+    async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
+    await connectable.dispose()
 
-    await engine.dispose()
+def run_migrations_online() -> None:
+    asyncio.run(run_async_migrations())
 
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    asyncio.run(run_migrations_online())
+    run_migrations_online()

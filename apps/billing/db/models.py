@@ -3,10 +3,9 @@ from uuid import uuid4
 
 from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey, Enum
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 
-Base = declarative_base()
+from db.database import Base
 
 
 class DiscountType(StrEnum):
