@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from http import HTTPStatus
 from uuid import UUID
 
@@ -46,7 +46,7 @@ class PromoService:
             raise HTTPException(HTTPStatus.BAD_REQUEST, PROMO_INACTIVE)
 
         # 3. Проверить даты
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         if promo.valid_from > now:
             raise HTTPException(HTTPStatus.BAD_REQUEST, PROMO_NOT_ACTIVE)
         if promo.valid_until and promo.valid_until < now:

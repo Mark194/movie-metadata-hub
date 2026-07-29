@@ -2,7 +2,7 @@ import secrets
 import string
 
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from fastapi import HTTPException, status
@@ -161,7 +161,7 @@ class AdminPromoService:
             promo_code_id=promo.id,
             user_id=user_id,
             status=UsageStatus.CONFIRMED,
-            applied_at=datetime.utcnow()
+            applied_at=datetime.now(timezone.utc)
         )
         db.add(usage)
         promo.used_count += 1

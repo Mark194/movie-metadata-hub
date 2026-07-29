@@ -3,7 +3,7 @@ from typing import Any
 
 import jwt
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -83,7 +83,7 @@ class AuthService:
         except jwt.PyJWTError as e:
             raise ValueError(f'Invalid access token: {e}')
 
-        now = datetime.utcnow().timestamp()
+        now = datetime.now(timezone.utc).timestamp()
         ttl = max(0, int(exp - now))
 
         if ttl > 0:
@@ -144,7 +144,7 @@ class AuthService:
 
     def create_access_token(self, user_id: str) -> tuple[str, str]:
         jti = str(uuid.uuid4())
-        expire = datetime.utcnow() + timedelta(minutes=settings.jwt.access_token_expire_minutes)
+        expire = datetime.now(timezone.utc)+ timedelta(minutes=settings.jwt.access_token_expire_minutes)
         payload = {
             'sub': user_id,
             'exp': expire,
@@ -155,6 +155,6 @@ class AuthService:
         return token
 
     def create_refresh_token(self, user_id: str) -> str:
-        expire = datetime.utcnow() + timedelta(days=settings.jwt.refresh_token_expire_days)
+        expire = datetime.now(timezone.utc) + timedelta(days=settings.jwt.refresh_token_expire_days)
         payload = {'sub': user_id, 'exp': expire, 'type': 'refresh'}
         return jwt.encode(payload, settings.jwt.secret_key, algorithm=settings.jwt.algorithm)

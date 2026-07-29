@@ -1,5 +1,5 @@
 from celery import shared_task
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import asyncio
 
 from common import get_logger
@@ -28,8 +28,8 @@ def activate_subscription_task(user_id: str, plan: str, days: int = None, promo_
             sub = UserSubscription(user_id=user_id, plan=UserSubscriptionPlan.FREE)
             db.add(sub)
         sub.plan = plan
-        sub.start_date = datetime.utcnow()
-        sub.end_date = (datetime.utcnow() + timedelta(days=days)) if days else None
+        sub.start_date = datetime.now(timezone.utc)
+        sub.end_date = (datetime.now(timezone.utc) + timedelta(days=days)) if days else None
         sub.is_active = True
         sub.promo_code_id = promo_code_id
         db.commit()

@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, Column, DateTime, String
 from sqlalchemy.orm import relationship
@@ -17,7 +17,7 @@ class User(Base):
     password = Column(String(255), nullable=False)
     first_name = Column(String(50))
     last_name = Column(String(50))
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), onupdate=datetime.now(timezone.utc))
     is_superuser = Column(Boolean, default=False, nullable=False)
 
     roles = relationship('Role', secondary='user_roles', back_populates='users')
