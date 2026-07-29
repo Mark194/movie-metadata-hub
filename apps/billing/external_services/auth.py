@@ -1,16 +1,23 @@
-import requests
+import httpx
 
-from common.settings import get_settings
+from common import logger
+from external_services.clients import auth_client
 
-settings = get_settings()
+logger = get_logger(__name__)
+
 
 async def update_user_premium_status(user_id: str, is_premium: bool):
-    url = f'{settings.auth.url}/api/v1/internal/users/{user_id}/premium'
-    headers = {'X-Internal-Token': settings.internal_api_token}
-    data = {'is_premium': is_premium}
     try:
-        resp = requests.patch(url, json=data, headers=headers, timeout=settings.auth.timeout)
-        resp.raise_for_status()
+        # Используем await с асинхронным клиентом
+        response = await auth_client.patch(
+            f'/api/v1/internal/users/{user_id}/premium',
+            json={'is_premium': is_premium}
+        )
+        response.raise_for_status()
+        logger.info(f'User {user_id} premium status updated to {is_premium}')
+    except httpx.HTTPStatusError as e:
+        logger.error(f'Auth service error for user {user_id}: {e.response.status_code} - {e.response.text}')
+        raise
     except Exception as e:
-        # Логируем ошибку
-        pass
+        logger.error(f'Unexpected error updating premium status for {user_id}: {e}')
+        raise
