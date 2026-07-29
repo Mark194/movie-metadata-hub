@@ -99,17 +99,21 @@ class PromoService:
         if usage.status != UsageStatus.PENDING:
             raise HTTPException(HTTPStatus.BAD_REQUEST, USAGE_ALREADY_HANDLE)
 
-        # Обновить usage
-        usage.status = UsageStatus.CONFIRMED
-        usage.order_id = order_id
-        await db.commit()
-
-        # Увеличить used_count промокода
-        promo_stmt = select(PromoCode).where(PromoCode.id == usage.promo_code_id)
+        # Блокируем строку промокода
+        promo_stmt = select(PromoCode).where(PromoCode.id == usage.promo_code_id).with_for_update()
         promo_result = await db.execute(promo_stmt)
         promo = promo_result.scalar_one()
+
+        # Атомарно проверяем лимит и обновляем
+        if 0 < promo.max_uses <= promo.used_count:
+            raise HTTPException(HTTPStatus.BAD_REQUEST, LIMIT_REACHED)
+
+        # Обновляем usage и инкремент в одной транзакции
+        usage.status = UsageStatus.CONFIRMED
+        usage.order_id = order_id
         promo.used_count += 1
-        await db.commit()
+
+        await db.commit()  # Единый коммит
 
         # В зависимости от типа промокода активируем подписку
         if promo.discount_type == DiscountType.FREE_TRIAL:
