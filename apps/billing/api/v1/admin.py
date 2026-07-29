@@ -9,6 +9,8 @@ from db.database import get_db
 from db.models import PromoCodeStatus
 from services.admin_promo_service import AdminPromoService
 
+from apps.billing.api.schemas import GenerateCodesRequest
+
 router = APIRouter(prefix='/admin/promo', tags=['admin'])
 
 
@@ -35,13 +37,11 @@ async def list_promo(
 
 @router.post('/generate')
 async def generate_codes(
-        count: int,
-        length: int = 8,
-        prefix: str = '',
+        req: GenerateCodesRequest,
         admin: dict = Depends(require_admin),
         db: AsyncSession = Depends(get_db)
 ):
-    return await AdminPromoService.generate_codes(count, length, prefix, admin['user_id'], db)
+    return await AdminPromoService.generate_codes(req, admin['user_id'], db)
 
 
 @router.post('/apply')
