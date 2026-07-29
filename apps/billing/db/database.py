@@ -5,7 +5,7 @@ from common.settings import get_settings
 
 settings = get_settings()
 
-engine = create_async_engine(settings.postgres.async_db_url, echo=True)
+engine = create_async_engine(settings.postgres.async_db_url, echo=False)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
 Base = declarative_base()
