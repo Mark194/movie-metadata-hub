@@ -5,7 +5,7 @@ from common import get_logger
 from db.sync_database import SyncSessionLocal
 from db.models import UserSubscription, UserSubscriptionPlan
 from external_services.auth import update_user_premium_status
-from external_services.notifier import send_notification_async
+from external_services.notifier import send_notification
 
 logger = get_logger(__name__)
 
@@ -35,7 +35,7 @@ def activate_subscription_task(user_id: str, plan: str, days: int = None, promo_
         update_user_premium_status(user_id, is_premium)
 
         # Отправить уведомление
-        send_notification_async(user_id, 'subscription_activated', {'plan': plan})
+        send_notification(user_id, 'subscription_activated', {'plan': plan})
     except Exception as e:
         logger.error(f'Failed to activate subscription for {user_id}: {e}')
         db.rollback()
@@ -53,6 +53,6 @@ def expire_subscription_task(user_id: str):
             sub.is_active = False
             db.commit()
             update_user_premium_status(user_id, False)
-            send_notification_async(user_id, 'subscription_expired', {})
+            send_notification(user_id, 'subscription_expired', {})
     finally:
         db.close()
