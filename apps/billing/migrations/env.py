@@ -3,7 +3,7 @@ import sys
 from logging.config import fileConfig
 from pathlib import Path
 
-from sqlalchemy import pool
+from sqlalchemy import pool, Table
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
@@ -16,8 +16,14 @@ from dotenv import load_dotenv
 env_path = Path(__file__).parent.parent.parent.parent / '.env'
 load_dotenv(dotenv_path=env_path)
 
+
+
 from db.database import Base  # ваш Base
+from db.sync_database import sync_engine
+from db.models import *
 from common.settings import get_settings
+
+users_table = Table('users', Base.metadata, autoload_with=sync_engine)
 
 settings = get_settings()
 config = context.config

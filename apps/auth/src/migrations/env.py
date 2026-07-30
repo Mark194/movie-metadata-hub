@@ -17,6 +17,11 @@ env_path = Path(__file__).parent.parent.parent.parent.parent / '.env'
 load_dotenv(dotenv_path=env_path)
 
 from db.postgres import Base  # ваш Base
+from models.login_history import *
+from models.permission import *
+from models.role import *
+from models.social_account import *
+from models.user import *
 from common.settings import get_settings
 
 settings = get_settings()

@@ -13,11 +13,11 @@ logger = get_logger(__name__)
 # Вспомогательные асинхронные функции для вызовов
 async def _update_and_notify(user_id: str, is_premium: bool, plan: str):
     await update_user_premium_status(user_id, is_premium)
-    await send_notification(user_id, 'subscription_activated', {'plan': plan})
+    send_notification(user_id, 'subscription_activated', {'plan': plan})
 
 async def _expire_and_notify(user_id: str):
     await update_user_premium_status(user_id, False)
-    await send_notification(user_id, 'subscription_expired', {})
+    send_notification(user_id, 'subscription_expired', {})
 
 @shared_task
 def activate_subscription_task(user_id: str, plan: str, days: int = None, promo_code_id: str = None):

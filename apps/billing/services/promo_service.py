@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from common.settings import get_settings
 from db.models import PromoCode, PromoCodeUsage, UsageStatus, DiscountType, PromoCodeStatus
 from external_services.auth import update_user_premium_status
-from external_services.notifier import send_notification_async
+from external_services.notifier import send_notification
 from services.celery_app import celery_app
 from services.tasks import activate_subscription_task
 
@@ -136,7 +136,7 @@ class PromoService:
             )
 
         # Отправить уведомление
-        await send_notification_async(
+        send_notification(
             user_id=usage.user_id,
             template_name='promo_applied',
             context={'promo_code': promo.code}

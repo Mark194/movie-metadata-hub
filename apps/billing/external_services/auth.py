@@ -1,6 +1,6 @@
 import httpx
 
-from common import logger
+from common import get_logger
 from external_services.clients import auth_client
 
 logger = get_logger(__name__)

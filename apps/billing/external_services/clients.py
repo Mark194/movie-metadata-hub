@@ -8,7 +8,7 @@ settings = get_settings()
 auth_client = httpx.AsyncClient(
     base_url=settings.auth.url,  # например, "http://auth:8000"
     timeout=settings.auth.timeout,
-    headers={"X-Internal-Token": settings.internal_api_token}
+    headers={"X-Internal-Token": settings.auth.internal_api_token}
 )
 
 # Глобальный клиент для платёжного шлюза
