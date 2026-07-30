@@ -10,7 +10,6 @@ logger = get_logger(__name__)
 
 
 class PostgreSQLClient:
-
     def __init__(self, url: str):
         self.url = url
         self.queries = QueryLoader()
@@ -18,15 +17,15 @@ class PostgreSQLClient:
     def connect(self):
         try:
             self.connection = psycopg2.connect(self.url, cursor_factory=DictCursor)
-            logger.info('Connected to PostgreSQL')
+            logger.info("Connected to PostgreSQL")
         except Exception as err:
-            logger.error(f'Failed to connect to PostgreSQL: {err}')
+            logger.error(f"Failed to connect to PostgreSQL: {err}")
             raise
 
     def close(self):
         if self.connection:
             self.connection.close()
-            logger.info('Disconnected from PostgreSQL')
+            logger.info("Disconnected from PostgreSQL")
 
     @contextmanager
     def get_cursor(self):
@@ -38,40 +37,39 @@ class PostgreSQLClient:
             yield cursor
             self.connection.commit()
         except Exception as err:
-            logger.error(f'Failed to commit to PostgreSQL: {err}')
+            logger.error(f"Failed to commit to PostgreSQL: {err}")
             self.connection.rollback()
             raise
         finally:
             cursor.close()
 
     def get_updated_movies(self, last_modified: str | None = None, limit: int = 1000):
-        query = self.queries.load('movies/get_updated_movies')
+        query = self.queries.load("movies/get_updated_movies")
         with self.get_cursor() as cursor:
-            cursor.execute(query, {
-                'last_modified': last_modified or '1900-01-01',
-                'limit': limit
-            })
+            cursor.execute(
+                query, {"last_modified": last_modified or "1900-01-01", "limit": limit}
+            )
             results = cursor.fetchall()
 
         return [dict(row) for row in results]
 
     def get_updated_persons(self, last_modified: str | None = None):
-        query = self.queries.load('persons/get_updated_persons')
+        query = self.queries.load("persons/get_updated_persons")
         with self.get_cursor() as cursor:
-            cursor.execute(query, {'last_modified': last_modified or '1900-01-01'})
+            cursor.execute(query, {"last_modified": last_modified or "1900-01-01"})
             results = cursor.fetchall()
-        return [row['id'] for row in results]
+        return [row["id"] for row in results]
 
     def get_updated_genres(self, last_modified: str | None = None):
-        query = self.queries.load('genres/get_updated_genres')
+        query = self.queries.load("genres/get_updated_genres")
         with self.get_cursor() as cursor:
-            cursor.execute(query, {'last_modified': last_modified or '1900-01-01'})
+            cursor.execute(query, {"last_modified": last_modified or "1900-01-01"})
             results = cursor.fetchall()
-        return [row['id'] for row in results]
+        return [row["id"] for row in results]
 
     def get_movies_by_ids(self, ids: list[int]) -> list[dict[str, Any]]:
-        query = self.queries.load('movies/get_movies_by_ids')
+        query = self.queries.load("movies/get_movies_by_ids")
         with self.get_cursor() as cursor:
-            cursor.execute(query, {'ids': ids})
+            cursor.execute(query, {"ids": ids})
             results = cursor.fetchall()
         return [dict(row) for row in results]

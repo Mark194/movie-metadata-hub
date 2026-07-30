@@ -10,12 +10,15 @@ from db.postgres import _async_session_maker, close_postgres, init_postgres
 from models.user import User
 
 
-async def create_superuser(login: str, password: str, first_name: str = "", last_name: str = ""):
+async def create_superuser(
+    login: str, password: str, first_name: str = "", last_name: str = ""
+):
     settings = get_settings()
     await init_postgres(settings.postgres.async_db_url)
 
     async with _async_session_maker() as session:
         from sqlalchemy import select
+
         stmt = select(User).where(User.login == login)
         result = await session.execute(stmt)
         existing = result.scalar_one_or_none()
@@ -42,6 +45,7 @@ async def create_superuser(login: str, password: str, first_name: str = "", last
 
     await close_postgres()
 
+
 # ... argparse остаётся без изменений
 
 
@@ -55,4 +59,6 @@ if __name__ == "__main__":
     parser.add_argument("--last-name", default="", help="Фамилия")
     args = parser.parse_args()
 
-    asyncio.run(create_superuser(args.login, args.password, args.first_name, args.last_name))
+    asyncio.run(
+        create_superuser(args.login, args.password, args.first_name, args.last_name)
+    )

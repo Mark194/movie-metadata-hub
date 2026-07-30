@@ -7,7 +7,10 @@ class DateTimeConverter:
     def convert_datetime_to_str(obj: Any) -> Any:
         """Рекурсивно преобразует datetime объекты в строки"""
         if isinstance(obj, dict):
-            return {key: DateTimeConverter.convert_datetime_to_str(value) for key, value in obj.items()}
+            return {
+                key: DateTimeConverter.convert_datetime_to_str(value)
+                for key, value in obj.items()
+            }
         elif isinstance(obj, list):
             return [DateTimeConverter.convert_datetime_to_str(item) for item in obj]
         elif isinstance(obj, (datetime, date)):
@@ -19,7 +22,10 @@ class DateTimeConverter:
     def convert_str_to_datetime(obj: Any) -> Any:
         """Рекурсивно преобразует строки с датами обратно в datetime"""
         if isinstance(obj, dict):
-            return {key: DateTimeConverter.convert_str_to_datetime(value) for key, value in obj.items()}
+            return {
+                key: DateTimeConverter.convert_str_to_datetime(value)
+                for key, value in obj.items()
+            }
         elif isinstance(obj, list):
             return [DateTimeConverter.convert_str_to_datetime(item) for item in obj]
         elif isinstance(obj, str):

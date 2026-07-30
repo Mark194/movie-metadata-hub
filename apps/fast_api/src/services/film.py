@@ -14,11 +14,7 @@ class FilmService:
     FILM_CACHE_EXPIRE = 300  # 5 минут
     FILMS_LIST_CACHE_EXPIRE = 60  # 1 минута
 
-    def __init__(
-            self,
-            cache_service: CacheService,
-            elastic: AsyncElasticsearch
-    ):
+    def __init__(self, cache_service: CacheService, elastic: AsyncElasticsearch):
         self.cache = cache_service
         self.elastic = elastic
         self.query_builder = ElasticQueryBuilder()
@@ -40,12 +36,12 @@ class FilmService:
         return film
 
     async def get_all(
-            self,
-            sort: str | None = None,
-            offset: int = 0,
-            limit: int = 50,
-            genre: str | None = None,
-            query: str | None = None,
+        self,
+        sort: str | None = None,
+        offset: int = 0,
+        limit: int = 50,
+        genre: str | None = None,
+        query: str | None = None,
     ) -> list[Film]:
         cache_key = self.key_builder.films_list(sort, offset, limit, genre, query)
 
@@ -62,30 +58,30 @@ class FilmService:
 
     async def _fetch_film_from_elastic(self, film_id: str) -> FilmDetail | None:
         try:
-            doc = await self.elastic.get(index='movies', id=film_id)
-            return FilmDetail(**doc['_source'])
+            doc = await self.elastic.get(index="movies", id=film_id)
+            return FilmDetail(**doc["_source"])
         except NotFoundError:
             raise HTTPException(status_code=404, detail=f"Film {film_id} not found")
         except ESConnectionError as e:
-            raise HTTPException(status_code=404, detail=f"Elasticsearch connection error: {e}")
-
+            raise HTTPException(
+                status_code=404, detail=f"Elasticsearch connection error: {e}"
+            )
 
     async def _fetch_films_from_elastic(
-            self,
-            sort: str | None = None,
-            offset: int = 0,
-            limit: int = 50,
-            genre: str | None = None,
-            query: str | None = None,
+        self,
+        sort: str | None = None,
+        offset: int = 0,
+        limit: int = 50,
+        genre: str | None = None,
+        query: str | None = None,
     ) -> list[Film]:
         try:
-            body = self.query_builder.build_films_query(sort, offset, limit, genre, query)
-            response = await self.elastic.search(index='movies', body=body)
+            body = self.query_builder.build_films_query(
+                sort, offset, limit, genre, query
+            )
+            response = await self.elastic.search(index="movies", body=body)
 
-            return [
-                Film(**hit['_source'])
-                for hit in response['hits']['hits']
-            ]
+            return [Film(**hit["_source"]) for hit in response["hits"]["hits"]]
         except (NotFoundError, ESConnectionError) as e:
-            logging.error(f'Error fetching films from Elasticsearch: {e}')
+            logging.error(f"Error fetching films from Elasticsearch: {e}")
             return []

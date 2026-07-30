@@ -30,23 +30,25 @@ class OAuthService:
         user_info = await provider.get_user_info(token_data)
         # 3. Находим или создаём пользователя
         user = await self._get_or_create_user(provider_name, user_info)
-        
+
         access_token, _ = self.auth_service.create_access_token(str(user.id))
         refresh_token = self.auth_service.create_refresh_token(str(user.id))
 
         refresh_ttl = timedelta(days=settings.jwt.refresh_token_expire_days)
-        await self.auth_service.cache.set(f'refresh:{user.id}', refresh_token, ttl=int(refresh_ttl.total_seconds()))
+        await self.auth_service.cache.set(
+            f"refresh:{user.id}", refresh_token, ttl=int(refresh_ttl.total_seconds())
+        )
         return {
-            'access_token': access_token,
-            'refresh_token': refresh_token,
-            'token_type': 'bearer'
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
         }
 
     async def _get_or_create_user(self, provider_name: str, user_info: dict) -> User:
         # Поиск существующей связи
         stmt = select(SocialAccount).where(
             SocialAccount.provider == provider_name,
-            SocialAccount.provider_user_id == user_info['provider_user_id']
+            SocialAccount.provider_user_id == user_info["provider_user_id"],
         )
         result = await self.db.execute(stmt)
         social_account = result.scalar_one_or_none()
@@ -54,37 +56,41 @@ class OAuthService:
             return social_account.user
 
         # Поиск по email (если есть) для привязки
-        email = user_info.get('email')
+        email = user_info.get("email")
         if email:
             stmt = select(User).where(User.login == email)
             result = await self.db.execute(stmt)
             user = result.scalar_one_or_none()
             if user:
                 # Привязываем соц аккаунт к существующему пользователю
-                self.db.add(SocialAccount(
-                    user_id=user.id,
-                    provider=provider_name,
-                    provider_user_id=user_info['provider_user_id'],
-                    email=email,
-                ))
+                self.db.add(
+                    SocialAccount(
+                        user_id=user.id,
+                        provider=provider_name,
+                        provider_user_id=user_info["provider_user_id"],
+                        email=email,
+                    )
+                )
                 await self.db.commit()
                 return user
 
         random_password = secrets.token_urlsafe(32)
-        login = email if email else f'{provider_name}_{user_info['provider_user_id']}'
+        login = email if email else f"{provider_name}_{user_info['provider_user_id']}"
         user = User(
             login=login,
             password=random_password,
-            first_name=user_info.get('first_name', ''),
-            last_name=user_info.get('last_name', ''),
+            first_name=user_info.get("first_name", ""),
+            last_name=user_info.get("last_name", ""),
         )
         self.db.add(user)
         await self.db.flush()
-        self.db.add(SocialAccount(
-            user_id=user.id,
-            provider=provider_name,
-            provider_user_id=user_info['provider_user_id'],
-            email=email,
-        ))
+        self.db.add(
+            SocialAccount(
+                user_id=user.id,
+                provider=provider_name,
+                provider_user_id=user_info["provider_user_id"],
+                email=email,
+            )
+        )
         await self.db.commit()
         return user

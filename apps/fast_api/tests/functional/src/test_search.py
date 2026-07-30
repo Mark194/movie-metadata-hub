@@ -9,23 +9,43 @@ settings = get_settings()
 
 
 async def call_search(params: dict) -> tuple[int, dict | list]:
-    async with aiohttp.ClientSession() as session, session.get(
-        f'{settings.api.url}/api/v1/films/search',
-        params=params
-    ) as response:
+    async with (
+        aiohttp.ClientSession() as session,
+        session.get(
+            f"{settings.api.url}/api/v1/films/search", params=params
+        ) as response,
+    ):
         body = await response.json()
         return response.status, body
 
 
-@pytest.mark.parametrize('params, expected_status', [
-    ({}, HTTPStatus.UNPROCESSABLE_ENTITY),
-    ({'query': '', 'page_number': 1, 'page_size': 10}, HTTPStatus.UNPROCESSABLE_ENTITY),
-    ({'query': 'test', 'page_number': 0, 'page_size': 10}, HTTPStatus.UNPROCESSABLE_ENTITY),
-    ({'query': 'test', 'page_number': 1, 'page_size': 0}, HTTPStatus.UNPROCESSABLE_ENTITY),
-    ({'query': 'test', 'page_number': 1, 'page_size': 101}, HTTPStatus.UNPROCESSABLE_ENTITY),
-    ({'query': 123, 'page_number': 1, 'page_size': 10}, HTTPStatus.OK),
-    ({'query': '; DROP TABLE films; --', 'page_number': 1, 'page_size': 10}, HTTPStatus.OK),
-])
+@pytest.mark.parametrize(
+    "params, expected_status",
+    [
+        ({}, HTTPStatus.UNPROCESSABLE_ENTITY),
+        (
+            {"query": "", "page_number": 1, "page_size": 10},
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+        ),
+        (
+            {"query": "test", "page_number": 0, "page_size": 10},
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+        ),
+        (
+            {"query": "test", "page_number": 1, "page_size": 0},
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+        ),
+        (
+            {"query": "test", "page_number": 1, "page_size": 101},
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+        ),
+        ({"query": 123, "page_number": 1, "page_size": 10}, HTTPStatus.OK),
+        (
+            {"query": "; DROP TABLE films; --", "page_number": 1, "page_size": 10},
+            HTTPStatus.OK,
+        ),
+    ],
+)
 @pytest.mark.asyncio
 async def test_search_validation(params, expected_status):
     status, _ = await call_search(params)
@@ -34,17 +54,20 @@ async def test_search_validation(params, expected_status):
 
 @pytest_asyncio.fixture(scope="function")
 async def indexed_search_movies(generate_movies, es_write_data):
-    movies = generate_movies(count=23, title='Pagination Test')
+    movies = generate_movies(count=23, title="Pagination Test")
     await es_write_data(settings.elastic.index, movies)
     yield
 
 
-@pytest.mark.parametrize('query_params, expected_length', [
-    ({'query': 'Pagination Test', 'page_number': 1, 'page_size': 10}, 10),
-    ({'query': 'Pagination Test', 'page_number': 2, 'page_size': 10}, 10),
-    ({'query': 'Pagination Test', 'page_number': 3, 'page_size': 10}, 3),
-    ({'query': 'Pagination Test', 'page_number': 4, 'page_size': 10}, 0),
-])
+@pytest.mark.parametrize(
+    "query_params, expected_length",
+    [
+        ({"query": "Pagination Test", "page_number": 1, "page_size": 10}, 10),
+        ({"query": "Pagination Test", "page_number": 2, "page_size": 10}, 10),
+        ({"query": "Pagination Test", "page_number": 3, "page_size": 10}, 3),
+        ({"query": "Pagination Test", "page_number": 4, "page_size": 10}, 0),
+    ],
+)
 @pytest.mark.asyncio
 async def test_search_pagination(indexed_search_movies, query_params, expected_length):
     s, b = await call_search(query_params)
@@ -52,19 +75,24 @@ async def test_search_pagination(indexed_search_movies, query_params, expected_l
     assert len(b) == expected_length
 
 
-@pytest.mark.parametrize('query, expected_count', [
-    ('The Star', 50),
-    ('the star', 50),
-    ('star', 50),
-    ('Стар', 0),
-    ('New World', 50),
-])
+@pytest.mark.parametrize(
+    "query, expected_count",
+    [
+        ("The Star", 50),
+        ("the star", 50),
+        ("star", 50),
+        ("Стар", 0),
+        ("New World", 50),
+    ],
+)
 @pytest.mark.asyncio
 async def test_search_phrase(generate_movies, es_write_data, query, expected_count):
-    movies = generate_movies(count=50, title='The Star', rating=8.5)
+    movies = generate_movies(count=50, title="The Star", rating=8.5)
     await es_write_data(settings.elastic.index, movies)
 
-    status, body = await call_search({'query': query, 'page_number': 1, 'page_size': 100})
+    status, body = await call_search(
+        {"query": query, "page_number": 1, "page_size": 100}
+    )
 
     assert status == HTTPStatus.OK
     assert len(body) == expected_count
@@ -72,21 +100,21 @@ async def test_search_phrase(generate_movies, es_write_data, query, expected_cou
 
 @pytest.mark.asyncio
 async def test_search_redis_cache(generate_movies, es_write_data, redis_client):
-    movies = generate_movies(count=5, title='Cache Test Movie')
+    movies = generate_movies(count=5, title="Cache Test Movie")
     await es_write_data(settings.elastic.index, movies)
 
-    query = 'Cache Test Movie'
+    query = "Cache Test Movie"
     offset = 0
     limit = 5
-    cache_key = f'films:offset:{offset}:limit:{limit}:query:{query}'
+    cache_key = f"films:offset:{offset}:limit:{limit}:query:{query}"
 
-    s1, b1 = await call_search({'query': query, 'page_number': 1, 'page_size': limit})
+    s1, b1 = await call_search({"query": query, "page_number": 1, "page_size": limit})
 
     assert s1 == HTTPStatus.OK
     assert len(b1) == 5
-    assert await redis_client.exists(cache_key), f'Key {cache_key} not found in Redis'
+    assert await redis_client.exists(cache_key), f"Key {cache_key} not found in Redis"
 
-    s2, b2 = await call_search({'query': query, 'page_number': 1, 'page_size': limit})
+    s2, b2 = await call_search({"query": query, "page_number": 1, "page_size": limit})
 
     assert s2 == HTTPStatus.OK
     assert b1 == b2
@@ -95,21 +123,23 @@ async def test_search_redis_cache(generate_movies, es_write_data, redis_client):
     assert cached is not None
 
 
-SEARCH_REQUIRED_FIELDS = {'uuid', 'title', 'imdb_rating'}
+SEARCH_REQUIRED_FIELDS = {"uuid", "title", "imdb_rating"}
 
 
 @pytest.mark.asyncio
 async def test_search_response_schema(generate_movies, es_write_data):
-    movies = generate_movies(count=2, title='SchemaTest')
+    movies = generate_movies(count=2, title="SchemaTest")
     await es_write_data(settings.elastic.index, movies)
 
-    s, b = await call_search({'query': 'SchemaTest', 'page_number': 1, 'page_size': 2})
+    s, b = await call_search({"query": "SchemaTest", "page_number": 1, "page_size": 2})
 
     assert s == HTTPStatus.OK
     assert len(b) == 2
 
     for film in b:
-        assert SEARCH_REQUIRED_FIELDS.issubset(film.keys()), f'Missing fields in {film.keys()}'
-        assert isinstance(film['uuid'], str)
-        assert isinstance(film['title'], str)
-        assert isinstance(film['imdb_rating'], (int, float))
+        assert SEARCH_REQUIRED_FIELDS.issubset(film.keys()), (
+            f"Missing fields in {film.keys()}"
+        )
+        assert isinstance(film["uuid"], str)
+        assert isinstance(film["title"], str)
+        assert isinstance(film["imdb_rating"], (int, float))

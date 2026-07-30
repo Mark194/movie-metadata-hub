@@ -10,6 +10,7 @@ from redis.asyncio import Redis
 
 config = get_settings()
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     redis.redis = Redis(host=config.redis.host, port=config.redis.port)
@@ -21,10 +22,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=config.api.project_name,
-    docs_url='/api/openapi',
-    openapi_url='/api/openapi.json',
+    docs_url="/api/openapi",
+    openapi_url="/api/openapi.json",
     default_response_class=ORJSONResponse,
     lifespan=lifespan,
 )
 
-app.include_router(films.router, prefix='/api/v1', tags=['films'])
+app.include_router(films.router, prefix="/api/v1", tags=["films"])

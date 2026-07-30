@@ -7,7 +7,7 @@ from slowapi.util import get_remote_address
 
 settings = get_settings()
 
-STORAGE_OPTIONS = {'decode_responses': True}
+STORAGE_OPTIONS = {"decode_responses": True}
 
 
 async def get_redis_client():

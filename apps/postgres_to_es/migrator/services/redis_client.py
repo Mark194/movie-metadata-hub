@@ -5,17 +5,16 @@ logger = get_logger(__name__)
 
 
 class RedisClient:
-
-    def __init__(self, host: str = 'localhost', port: int = 6379, db: int = 0):
+    def __init__(self, host: str = "localhost", port: int = 6379, db: int = 0):
         self.client = redis.Redis(host=host, port=port, db=db, decode_responses=True)
         self._test_connection()
 
     def _test_connection(self):
         try:
             self.client.ping()
-            logger.info('Connected to Redis')
+            logger.info("Connected to Redis")
         except Exception as e:
-            logger.error(f'Failed to connect to Redis: {e}')
+            logger.error(f"Failed to connect to Redis: {e}")
             raise
 
     def get(self, key: str) -> str | None:

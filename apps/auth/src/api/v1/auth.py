@@ -18,12 +18,12 @@ from api.v1.users import get_user_service
 router = APIRouter()
 
 
-@router.post('/auth/register', status_code=status.HTTP_201_CREATED)
-@limiter.limit('10/minute')
+@router.post("/auth/register", status_code=status.HTTP_201_CREATED)
+@limiter.limit("10/minute")
 async def register(
-        request: Request,
-        params: RegistrationParams,
-        service: AuthService = Depends(get_auth_service),
+    request: Request,
+    params: RegistrationParams,
+    service: AuthService = Depends(get_auth_service),
 ):
     try:
         result = await service.register(params)
@@ -32,13 +32,13 @@ async def register(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.post('/auth/login', response_model=TokenResponse)
-@limiter.limit('5/minute')
+@router.post("/auth/login", response_model=TokenResponse)
+@limiter.limit("5/minute")
 async def login(
-        params: AuthParams,
-        request: Request,
-        auth_service: AuthService = Depends(get_auth_service),
-        user_service: UserService = Depends(get_user_service),
+    params: AuthParams,
+    request: Request,
+    auth_service: AuthService = Depends(get_auth_service),
+    user_service: UserService = Depends(get_user_service),
 ):
     try:
         tokens, user = await auth_service.login(params)
@@ -50,11 +50,11 @@ async def login(
     return tokens
 
 
-@router.post('/auth/logout', status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/auth/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(
-        params: LogoutParams,
-        access_token: str = Depends(get_access_token),
-        service: AuthService = Depends(get_auth_service),
+    params: LogoutParams,
+    access_token: str = Depends(get_access_token),
+    service: AuthService = Depends(get_auth_service),
 ):
     try:
         await service.logout(access_token, params.refresh_token)
@@ -62,10 +62,10 @@ async def logout(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.post('/auth/refresh', response_model=TokenResponse)
+@router.post("/auth/refresh", response_model=TokenResponse)
 async def refresh(
-        params: RefreshParams,
-        service: AuthService = Depends(get_auth_service),
+    params: RefreshParams,
+    service: AuthService = Depends(get_auth_service),
 ):
     try:
         tokens = await service.refresh(params.refresh_token)

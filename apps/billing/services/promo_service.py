@@ -19,20 +19,20 @@ from services.tasks import activate_subscription_task
 
 settings = get_settings()
 
-PROMO_NOT_FOUND = 'Промокод не найден'
-PROMO_INACTIVE = 'Промокод неактивен'
-PROMO_NOT_ACTIVE = 'Промокод ещё не начал действовать'
-PROMO_EXPIRED = 'Промокод истёк'
-PROMO_USED = 'Вы уже использовали этот промокод'
-LIMIT_REACHED = 'Лимит использований исчерпан'
-PROMO_APPLIED = 'Промокод применён, ожидает оплаты'
+PROMO_NOT_FOUND = "Промокод не найден"
+PROMO_INACTIVE = "Промокод неактивен"
+PROMO_NOT_ACTIVE = "Промокод ещё не начал действовать"
+PROMO_EXPIRED = "Промокод истёк"
+PROMO_USED = "Вы уже использовали этот промокод"
+LIMIT_REACHED = "Лимит использований исчерпан"
+PROMO_APPLIED = "Промокод применён, ожидает оплаты"
 
-USAGE_NOT_FOUND = 'Usage не найден'
-USAGE_ALREADY_HANDLE = 'Usage уже обработан'
-USAGE_NOT_WAITING = 'Usage не в статусе ожидания'
+USAGE_NOT_FOUND = "Usage не найден"
+USAGE_ALREADY_HANDLE = "Usage уже обработан"
+USAGE_NOT_WAITING = "Usage не в статусе ожидания"
 
-STATUS_CONFIRMED = {'status': 'confirmed'}
-STATUS_REVERTED = {'status': 'reverted'}
+STATUS_CONFIRMED = {"status": "confirmed"}
+STATUS_REVERTED = {"status": "reverted"}
 
 
 class PromoService:
@@ -65,7 +65,7 @@ class PromoService:
             stmt = select(PromoCodeUsage).where(
                 PromoCodeUsage.promo_code_id == promo.id,
                 PromoCodeUsage.user_id == user_id,
-                PromoCodeUsage.status.in_([UsageStatus.PENDING, UsageStatus.CONFIRMED])
+                PromoCodeUsage.status.in_([UsageStatus.PENDING, UsageStatus.CONFIRMED]),
             )
             result = await db.execute(stmt)
             if result.scalar_one_or_none():
@@ -73,9 +73,7 @@ class PromoService:
 
         # 6. Создать usage со статусом PENDING
         usage = PromoCodeUsage(
-            promo_code_id=promo.id,
-            user_id=user_id,
-            status=UsageStatus.PENDING
+            promo_code_id=promo.id, user_id=user_id, status=UsageStatus.PENDING
         )
         db.add(usage)
         await db.commit()
@@ -85,10 +83,10 @@ class PromoService:
         # Но по условию требуется подтверждение оплаты, поэтому оставляем PENDING
         # Возвращаем данные для оплаты
         return {
-            'usage_id': usage.id,
-            'discount_type': promo.discount_type,
-            'discount_value': promo.discount_value,
-            'message': PROMO_APPLIED
+            "usage_id": usage.id,
+            "discount_type": promo.discount_type,
+            "discount_value": promo.discount_value,
+            "message": PROMO_APPLIED,
         }
 
     @staticmethod
@@ -104,7 +102,11 @@ class PromoService:
             raise HTTPException(HTTPStatus.BAD_REQUEST, USAGE_ALREADY_HANDLE)
 
         # Блокируем строку промокода
-        promo_stmt = select(PromoCode).where(PromoCode.id == usage.promo_code_id).with_for_update()
+        promo_stmt = (
+            select(PromoCode)
+            .where(PromoCode.id == usage.promo_code_id)
+            .with_for_update()
+        )
         promo_result = await db.execute(promo_stmt)
         promo = promo_result.scalar_one()
 
@@ -124,9 +126,9 @@ class PromoService:
             # Активировать триал
             await PromoService._activate_subscription(
                 user_id=usage.user_id,
-                plan='trial',
+                plan="trial",
                 days=promo.discount_value,
-                promo_code_id=promo.id
+                promo_code_id=promo.id,
             )
         else:
             # Для percent/fixed – предполагается, что оплата уже прошла,
@@ -134,16 +136,16 @@ class PromoService:
             # Здесь можно активировать premium подписку
             await PromoService._activate_subscription(
                 user_id=usage.user_id,
-                plan='premium',
+                plan="premium",
                 days=None,  # бессрочная или на период
-                promo_code_id=promo.id
+                promo_code_id=promo.id,
             )
 
         # Отправить уведомление
         send_notification(
             user_id=usage.user_id,
-            template_name='promo_applied',
-            context={'promo_code': promo.code}
+            template_name="promo_applied",
+            context={"promo_code": promo.code},
         )
 
         return STATUS_CONFIRMED
@@ -168,6 +170,12 @@ class PromoService:
         return STATUS_REVERTED
 
     @staticmethod
-    async def _activate_subscription(user_id: UUID, plan: str, days: int | None = None,
-                                     promo_code_id: UUID | None = None):
-        activate_subscription_task.delay(str(user_id), plan, days, str(promo_code_id) if promo_code_id else None)
+    async def _activate_subscription(
+        user_id: UUID,
+        plan: str,
+        days: int | None = None,
+        promo_code_id: UUID | None = None,
+    ):
+        activate_subscription_task.delay(
+            str(user_id), plan, days, str(promo_code_id) if promo_code_id else None
+        )

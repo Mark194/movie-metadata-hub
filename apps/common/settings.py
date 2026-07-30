@@ -18,7 +18,7 @@ class RedisSettings(BaseModel):
 
     @property
     def url(self):
-        return f'redis://{self.host}:{self.port}/{self.db}'
+        return f"redis://{self.host}:{self.port}/{self.db}"
 
 
 class PostgresSettings(BaseModel):
@@ -30,13 +30,17 @@ class PostgresSettings(BaseModel):
 
     @property
     def db_url(self):
-        return (f'postgresql://{self.user}:{self.password}@'
-                f'{self.host}:{self.port}/{self.db}')
+        return (
+            f"postgresql://{self.user}:{self.password}@"
+            f"{self.host}:{self.port}/{self.db}"
+        )
 
     @property
     def async_db_url(self):
-        return (f'postgresql+asyncpg://{self.user}:{self.password}@'
-                f'{self.host}:{self.port}/{self.db}')
+        return (
+            f"postgresql+asyncpg://{self.user}:{self.password}@"
+            f"{self.host}:{self.port}/{self.db}"
+        )
 
 
 class MigratorSettings(BaseModel):
@@ -108,11 +112,11 @@ class Settings(BaseSettings):
     billing: BillingSettings
 
     model_config = SettingsConfigDict(
-        env_file=Path(__file__).resolve().parent.parent / '.env',
-        env_file_encoding='utf-8',
-        extra='ignore',
+        env_file=Path(__file__).resolve().parent.parent / ".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
         case_sensitive=False,
-        env_nested_delimiter='__',
+        env_nested_delimiter="__",
     )
 
 

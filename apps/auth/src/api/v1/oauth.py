@@ -8,8 +8,10 @@ from services.oauth import OAuthService
 router = APIRouter()
 
 
-@router.get('/login/{provider}')
-async def oauth_login(provider: str, oauth_service: OAuthService = Depends(get_oauth_service)):
+@router.get("/login/{provider}")
+async def oauth_login(
+    provider: str, oauth_service: OAuthService = Depends(get_oauth_service)
+):
     try:
         auth_url = oauth_service.get_auth_url(provider)
         return RedirectResponse(auth_url)
@@ -17,11 +19,11 @@ async def oauth_login(provider: str, oauth_service: OAuthService = Depends(get_o
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))
 
 
-@router.get('/callback/{provider}')
+@router.get("/callback/{provider}")
 async def oauth_callback(
-        provider: str,
-        code: str,
-        oauth_service: OAuthService = Depends(get_oauth_service),
+    provider: str,
+    code: str,
+    oauth_service: OAuthService = Depends(get_oauth_service),
 ):
     try:
         tokens = await oauth_service.process_callback(provider, code)

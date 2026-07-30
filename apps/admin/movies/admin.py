@@ -17,12 +17,12 @@ class PersonAdmin(admin.ModelAdmin):
 
 class GenreFilmWorkInline(admin.TabularInline):
     model = GenreFilmWork
-    autocomplete_fields = ('genre',)
+    autocomplete_fields = ("genre",)
 
 
 class PersonFilmWorkInline(admin.TabularInline):
     model = PersonFilmWork
-    autocomplete_fields = ('person',)
+    autocomplete_fields = ("person",)
 
 
 @admin.register(FilmWork)

@@ -44,11 +44,7 @@ class FilmWork(UUIDMixin, TimeStampedMixin):
     )
     genres = models.ManyToManyField("Genre", through="GenreFilmWork")
     persons = models.ManyToManyField("Person", through="PersonFilmWork")
-    file_path = models.FileField(
-        _("file"),
-        blank=True,
-        null=True,
-        upload_to="movies/")
+    file_path = models.FileField(_("file"), blank=True, null=True, upload_to="movies/")
 
     class Meta:
         db_table = 'content"."film_work'
@@ -74,9 +70,7 @@ class Gender(models.TextChoices):
 
 
 class Person(UUIDMixin, TimeStampedMixin):
-    full_name = models.CharField(
-        _("full_name"),
-        max_length=MAX_LENGTH_NAME_FIELD)
+    full_name = models.CharField(_("full_name"), max_length=MAX_LENGTH_NAME_FIELD)
 
     class Meta:
         db_table = 'content"."person'
@@ -96,9 +90,7 @@ class RoleType(models.TextChoices):
 class PersonFilmWork(UUIDMixin):
     film_work = models.ForeignKey("FilmWork", on_delete=models.CASCADE)
     person = models.ForeignKey("Person", on_delete=models.CASCADE)
-    role = models.TextField(
-        _("role"), choices=RoleType.choices, default=RoleType.ACTOR
-    )
+    role = models.TextField(_("role"), choices=RoleType.choices, default=RoleType.ACTOR)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:

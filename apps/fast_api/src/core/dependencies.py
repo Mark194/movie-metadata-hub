@@ -11,14 +11,14 @@ from services.film import FilmService
 
 @lru_cache
 def get_cache_service(
-        redis: Redis = Depends(get_redis),
+    redis: Redis = Depends(get_redis),
 ) -> CacheService:
     return CacheService(redis)
 
 
 @lru_cache
 def get_film_service(
-        cache_service: CacheService = Depends(get_cache_service),
-        elastic: AsyncElasticsearch = Depends(get_elastic),
+    cache_service: CacheService = Depends(get_cache_service),
+    elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> FilmService:
     return FilmService(cache_service, elastic)

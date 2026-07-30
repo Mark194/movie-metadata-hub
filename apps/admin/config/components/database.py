@@ -10,8 +10,6 @@ DATABASES = {
         "PASSWORD": config.postgres.password,
         "HOST": config.postgres.host,
         "PORT": config.postgres.port,
-        "OPTIONS": {
-            "options": "-c search_path=public,content"
-        },
+        "OPTIONS": {"options": "-c search_path=public,content"},
     }
 }

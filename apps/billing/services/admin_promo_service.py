@@ -18,15 +18,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.promo_service import PromoService
 
-PROMO_NOT_FOUND = 'Промокод не найден'
-PROMO_ALREADY_EXIST = 'Промокод с таким кодом уже существует'
-INCORRECT_END_DATE = 'Дата окончания должна быть позже даты начала'
-PROMO_NOT_FOUND_OR_INACTIVE = 'Промокод не найден или неактивен'
-PROMO_LIMITED = 'Лимит использований исчерпан'
-PROMO_ALREADY_USED = 'Пользователь уже использовал этот промокод'
+PROMO_NOT_FOUND = "Промокод не найден"
+PROMO_ALREADY_EXIST = "Промокод с таким кодом уже существует"
+INCORRECT_END_DATE = "Дата окончания должна быть позже даты начала"
+PROMO_NOT_FOUND_OR_INACTIVE = "Промокод не найден или неактивен"
+PROMO_LIMITED = "Лимит использований исчерпан"
+PROMO_ALREADY_USED = "Пользователь уже использовал этот промокод"
 
-COUNT_MUST_PE_POSITIVE = 'Количество должно быть положительным'
-PROMO_MINIMUM_LENGTH = 'Минимальная длина кода 4 символа'
+COUNT_MUST_PE_POSITIVE = "Количество должно быть положительным"
+PROMO_MINIMUM_LENGTH = "Минимальная длина кода 4 символа"
 
 
 class AdminPromoService:
@@ -60,17 +60,17 @@ class AdminPromoService:
 
     @staticmethod
     async def list_all(
-            db: AsyncSession,
-            skip: int = 0,
-            limit: int = 100,
-            status: PromoCodeStatus = None,
-            code_filter: str | None = None,
+        db: AsyncSession,
+        skip: int = 0,
+        limit: int = 100,
+        status: PromoCodeStatus = None,
+        code_filter: str | None = None,
     ):
         stmt = select(PromoCode)
         if status:
             stmt = stmt.where(PromoCode.status == status)
         if code_filter:
-            stmt = stmt.where(PromoCode.code.ilike(f'%{code_filter}%'))
+            stmt = stmt.where(PromoCode.code.ilike(f"%{code_filter}%"))
         stmt = stmt.offset(skip).limit(limit).order_by(PromoCode.created_at.desc())
         result = await db.execute(stmt)
         return result.scalars().all()
@@ -83,7 +83,7 @@ class AdminPromoService:
         if not promo:
             raise HTTPException(status.HTTP_404_NOT_FOUND, PROMO_NOT_FOUND)
         # Обновляем только разрешённые поля
-        for field in ('status', 'valid_until', 'max_uses'):
+        for field in ("status", "valid_until", "max_uses"):
             if field in data:
                 setattr(promo, field, data[field])
         await db.commit()
@@ -92,9 +92,7 @@ class AdminPromoService:
 
     @staticmethod
     async def generate_codes(
-            req: GenerateCodesRequest,
-            admin_user_id: UUID,
-            db: AsyncSession
+        req: GenerateCodesRequest, admin_user_id: UUID, db: AsyncSession
     ):
         if req.count <= 0:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, COUNT_MUST_PE_POSITIVE)
@@ -115,8 +113,11 @@ class AdminPromoService:
         while len(generated) < req.count and attempts < max_attempts:
             attempts += 1
             # Генерация случайной части
-            random_part = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(req.length))
-            code = f'{req.prefix}_{random_part}' if req.prefix else random_part
+            random_part = "".join(
+                secrets.choice(string.ascii_uppercase + string.digits)
+                for _ in range(req.length)
+            )
+            code = f"{req.prefix}_{random_part}" if req.prefix else random_part
             if code in existing_codes:
                 continue
             existing_codes.add(code)
@@ -137,12 +138,14 @@ class AdminPromoService:
             db.add(promo)
 
         await db.commit()
-        return {'generated_codes': generated, 'count': len(generated)}
+        return {"generated_codes": generated, "count": len(generated)}
 
     @staticmethod
     async def apply_for_user(promo_code: str, user_id: UUID, db: AsyncSession):
         # Ищем промокод
-        stmt = select(PromoCode).where(PromoCode.code == promo_code, PromoCode.status == PromoCodeStatus.ACTIVE)
+        stmt = select(PromoCode).where(
+            PromoCode.code == promo_code, PromoCode.status == PromoCodeStatus.ACTIVE
+        )
         result = await db.execute(stmt)
         promo = result.scalar_one_or_none()
         if not promo:
@@ -157,7 +160,7 @@ class AdminPromoService:
             stmt = select(PromoCodeUsage).where(
                 PromoCodeUsage.promo_code_id == promo.id,
                 PromoCodeUsage.user_id == user_id,
-                PromoCodeUsage.status.in_([UsageStatus.PENDING, UsageStatus.CONFIRMED])
+                PromoCodeUsage.status.in_([UsageStatus.PENDING, UsageStatus.CONFIRMED]),
             )
             result = await db.execute(stmt)
             if result.scalar_one_or_none():
@@ -168,7 +171,7 @@ class AdminPromoService:
             promo_code_id=promo.id,
             user_id=user_id,
             status=UsageStatus.CONFIRMED,
-            applied_at=datetime.now(timezone.utc)
+            applied_at=datetime.now(timezone.utc),
         )
         db.add(usage)
         promo.used_count += 1
@@ -180,7 +183,7 @@ class AdminPromoService:
                 user_id=user_id,
                 plan=UserSubscriptionPlan.TRIAL,
                 days=promo.discount_value,
-                promo_code_id=promo.id
+                promo_code_id=promo.id,
             )
         else:
             # Для процентной или фиксированной скидки – активируем полную подписку (премиум)
@@ -188,7 +191,7 @@ class AdminPromoService:
                 user_id=user_id,
                 plan=UserSubscriptionPlan.PREMIUM,
                 days=None,
-                promo_code_id=promo.id
+                promo_code_id=promo.id,
             )
 
-        return {'status': 'applied', 'usage_id': usage.id}
+        return {"status": "applied", "usage_id": usage.id}

@@ -7,19 +7,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.dependencies import get_current_user
 from api.schemas import SubscriptionResponse
 
-router = APIRouter(prefix='/subscription', tags=['subscription'])
+router = APIRouter(prefix="/subscription", tags=["subscription"])
 
-FREE_PLAN = {'plan': UserSubscriptionPlan.FREE, 'is_active': False}
+FREE_PLAN = {"plan": UserSubscriptionPlan.FREE, "is_active": False}
 
 
-@router.get('/me', response_model=SubscriptionResponse)
+@router.get("/me", response_model=SubscriptionResponse)
 async def get_my_subscription(
-        current_user: dict = Depends(get_current_user),
-        db: AsyncSession = Depends(get_db)
+    current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)
 ):
-    stmt = select(UserSubscription).where(UserSubscription.user_id == current_user['user_id'])
+    stmt = select(UserSubscription).where(
+        UserSubscription.user_id == current_user["user_id"]
+    )
     result = await db.execute(stmt)
     sub = result.scalar_one_or_none()
     if not sub:
         return FREE_PLAN
-    return {'plan': sub.plan, 'is_active': sub.is_active, 'end_date': sub.end_date}
+    return {"plan": sub.plan, "is_active": sub.is_active, "end_date": sub.end_date}

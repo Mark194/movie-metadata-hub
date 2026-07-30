@@ -10,26 +10,24 @@ from api.v1.schemas import PermissionAssign, RoleCreate, RoleResponse, RoleUpdat
 
 router = APIRouter()
 
-ROLE_NOT_FOUND = 'Role not found'
-STATUS_ASSIGNED = {'status': 'assigned'}
-STATUS_REMOVED = {'status': 'removed'}
+ROLE_NOT_FOUND = "Role not found"
+STATUS_ASSIGNED = {"status": "assigned"}
+STATUS_REMOVED = {"status": "removed"}
 
 
-@router.get('/roles', response_model=list[RoleResponse])
+@router.get("/roles", response_model=list[RoleResponse])
 async def get_roles(
-        skip: int = 0,
-        limit: int = 100,
-        service: RoleService = Depends(get_role_service)
+    skip: int = 0, limit: int = 100, service: RoleService = Depends(get_role_service)
 ):
     roles = await service.get_roles(skip, limit)
     return roles
 
 
-@router.post('/roles', response_model=RoleResponse, status_code=HTTPStatus.CREATED)
+@router.post("/roles", response_model=RoleResponse, status_code=HTTPStatus.CREATED)
 async def create_role(
-        data: RoleCreate,
-        _: User = Depends(require_permission('roles:manage')),
-        service: RoleService = Depends(get_role_service)
+    data: RoleCreate,
+    _: User = Depends(require_permission("roles:manage")),
+    service: RoleService = Depends(get_role_service),
 ):
     try:
         role = await service.create_role(data.name, data.description)
@@ -38,11 +36,11 @@ async def create_role(
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=str(e))
 
 
-@router.get('/roles/{role_id}', response_model=RoleResponse)
+@router.get("/roles/{role_id}", response_model=RoleResponse)
 async def get_role(
-        role_id: UUID,
-        _: User = Depends(require_permission('roles:view')),
-        service: RoleService = Depends(get_role_service)
+    role_id: UUID,
+    _: User = Depends(require_permission("roles:view")),
+    service: RoleService = Depends(get_role_service),
 ):
     role = await service.get_role(role_id)
     if not role:
@@ -50,12 +48,12 @@ async def get_role(
     return role
 
 
-@router.patch('/roles/{role_id}', response_model=RoleResponse)
+@router.patch("/roles/{role_id}", response_model=RoleResponse)
 async def update_role(
-        role_id: UUID,
-        data: RoleUpdate,
-        _: User = Depends(require_permission('roles:manage')),
-        service: RoleService = Depends(get_role_service)
+    role_id: UUID,
+    data: RoleUpdate,
+    _: User = Depends(require_permission("roles:manage")),
+    service: RoleService = Depends(get_role_service),
 ):
     try:
         role = await service.update_role(role_id, data.name, data.description)
@@ -64,20 +62,20 @@ async def update_role(
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=str(e))
 
 
-@router.delete('/roles/{role_id}', status_code=HTTPStatus.NO_CONTENT)
+@router.delete("/roles/{role_id}", status_code=HTTPStatus.NO_CONTENT)
 async def delete_role(
-        role_id: UUID,
-        _: User = Depends(require_permission('roles:manage')),
-        service: RoleService = Depends(get_role_service)
+    role_id: UUID,
+    _: User = Depends(require_permission("roles:manage")),
+    service: RoleService = Depends(get_role_service),
 ):
     await service.delete_role(role_id)
 
 
-@router.post('/roles/{role_id}/permissions')
+@router.post("/roles/{role_id}/permissions")
 async def assign_permission(
-        role_id: UUID,
-        data: PermissionAssign,
-        service: RoleService = Depends(get_role_service)
+    role_id: UUID,
+    data: PermissionAssign,
+    service: RoleService = Depends(get_role_service),
 ):
     try:
         await service.assign_permission_to_role(role_id, data.permission_id)
@@ -86,11 +84,9 @@ async def assign_permission(
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))
 
 
-@router.delete('/roles/{role_id}/permissions/{permission_id}')
+@router.delete("/roles/{role_id}/permissions/{permission_id}")
 async def remove_permission(
-        role_id: UUID,
-        permission_id: UUID,
-        service: RoleService = Depends(get_role_service)
+    role_id: UUID, permission_id: UUID, service: RoleService = Depends(get_role_service)
 ):
     await service.remove_permission_from_role(role_id, permission_id)
     return STATUS_REMOVED

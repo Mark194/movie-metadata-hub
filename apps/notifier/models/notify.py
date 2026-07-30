@@ -10,19 +10,19 @@ Base = declarative_base()
 
 
 class NotificationType(str, enum.Enum):
-    EMAIL = 'email'
-    SMS = 'sms'
-    PUSH = 'push'
+    EMAIL = "email"
+    SMS = "sms"
+    PUSH = "push"
 
 
 class NotificationStatus(str, enum.Enum):
-    PENDING = 'pending'
-    SENT = 'sent'
-    FAILED = 'failed'
+    PENDING = "pending"
+    SENT = "sent"
+    FAILED = "failed"
 
 
 class Template(Base):
-    __tablename__ = 'templates'
+    __tablename__ = "templates"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), unique=True, nullable=False)
     subject_template = Column(String(200), nullable=False)
@@ -31,10 +31,16 @@ class Template(Base):
 
 
 class Notification(Base):
-    __tablename__ = 'notifications'
+    __tablename__ = "notifications"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    template_id = Column(Integer, ForeignKey('templates.id'), nullable=True)
+    user_id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True,
+        nullable=False,
+    )
+    template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
     subject = Column(String(200), nullable=True)  # финальный сабжект
     body = Column(Text, nullable=True)  # финальный текст
     type = Column(Enum(NotificationType), nullable=False)

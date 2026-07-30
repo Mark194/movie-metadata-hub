@@ -55,7 +55,7 @@ class ConfirmPaymentRequest(BaseModel):
 class GenerateCodesRequest(BaseModel):
     count: int = Field(..., ge=1, le=1000)
     length: int = Field(8, ge=4, le=20)
-    prefix: str = Field('', max_length=10)
+    prefix: str = Field("", max_length=10)
     discount_type: DiscountType
     discount_value: int = Field(..., gt=0)
     valid_from: datetime

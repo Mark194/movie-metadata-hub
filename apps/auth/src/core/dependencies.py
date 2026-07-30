@@ -19,24 +19,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 security = HTTPBearer()
 settings = get_settings()
 
-INVALID_TOKEN = 'Invalid token'
-INVALID_TOKEN_PAYLOAD = 'Invalid token payload'
-TOKEN_REVOKED = 'Token revoked'
-USER_NOT_FOUND = 'User not found'
-FORBIDDEN = 'Forbidden'
+INVALID_TOKEN = "Invalid token"
+INVALID_TOKEN_PAYLOAD = "Invalid token payload"
+TOKEN_REVOKED = "Token revoked"
+USER_NOT_FOUND = "User not found"
+FORBIDDEN = "Forbidden"
 
 
 @lru_cache
 def get_cache_service(
-        redis: Redis = Depends(get_redis),
+    redis: Redis = Depends(get_redis),
 ) -> CacheService:
     return CacheService(redis)
 
 
 @lru_cache
 def get_auth_service(
-        cache_service: CacheService = Depends(get_cache_service),
-        postgres: AsyncSession = Depends(get_postgres),
+    cache_service: CacheService = Depends(get_cache_service),
+    postgres: AsyncSession = Depends(get_postgres),
 ):
     return AuthService(cache_service, postgres)
 
@@ -47,31 +47,39 @@ def get_role_service(db: AsyncSession = Depends(get_postgres)) -> RoleService:
 
 
 async def get_user_service(
-        db: AsyncSession = Depends(get_postgres),
-        cache: CacheService = Depends(get_cache_service),
+    db: AsyncSession = Depends(get_postgres),
+    cache: CacheService = Depends(get_cache_service),
 ) -> UserService:
     return UserService(db, cache)
 
 
-async def get_access_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+async def get_access_token(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> str:
     return credentials.credentials
 
 
 async def get_current_user(
-        credentials: HTTPAuthorizationCredentials = Depends(security),
-        db: AsyncSession = Depends(get_postgres),
-        cache: CacheService = Depends(get_cache_service),  # добавить зависимость
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_postgres),
+    cache: CacheService = Depends(get_cache_service),  # добавить зависимость
 ) -> User:
     token = credentials.credentials
     try:
-        payload = jwt.decode(token, settings.jwt.secret_key, algorithms=[settings.jwt.algorithm])
+        payload = jwt.decode(
+            token, settings.jwt.secret_key, algorithms=[settings.jwt.algorithm]
+        )
         user_id = payload.get("sub")
         jti = payload.get("jti")
         if not user_id or not jti:
-            raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail=INVALID_TOKEN_PAYLOAD)
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED, detail=INVALID_TOKEN_PAYLOAD
+            )
 
-        if await cache.get(f'blacklist:{jti}'):
-            raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail=TOKEN_REVOKED)
+        if await cache.get(f"blacklist:{jti}"):
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED, detail=TOKEN_REVOKED
+            )
 
     except jwt.PyJWTError:
         raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail=INVALID_TOKEN)
@@ -84,8 +92,8 @@ async def get_current_user(
 
 def require_permission(permission_name: str):
     async def permission_checker(
-            current_user: User = Depends(get_current_user),
-            db: AsyncSession = Depends(get_postgres),
+        current_user: User = Depends(get_current_user),
+        db: AsyncSession = Depends(get_postgres),
     ):
         if current_user.is_superuser:
             return current_user
@@ -100,7 +108,7 @@ def require_permission(permission_name: str):
 
 
 async def get_oauth_service(
-        db: AsyncSession = Depends(get_postgres),
-        auth_service: AuthService = Depends(get_auth_service),
+    db: AsyncSession = Depends(get_postgres),
+    auth_service: AuthService = Depends(get_auth_service),
 ) -> OAuthService:
     return OAuthService(db, auth_service)

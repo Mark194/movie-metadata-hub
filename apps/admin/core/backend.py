@@ -13,8 +13,8 @@ class AuthServiceBackend(BaseBackend):
             user.is_staff = True
             user.save()
 
-            request.session['access_token'] = tokens['access_token']
-            request.session['refresh_token'] = tokens['refresh_token']
+            request.session["access_token"] = tokens["access_token"]
+            request.session["refresh_token"] = tokens["refresh_token"]
             return user
         return None
 

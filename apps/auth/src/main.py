@@ -15,7 +15,7 @@ from db.redis import close_redis
 from fastapi import FastAPI
 from redis.asyncio import Redis
 
-APP_PREFIX = '/api/v1'
+APP_PREFIX = "/api/v1"
 
 config = get_settings()
 
@@ -36,8 +36,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     lifespan=lifespan,
-    docs_url='/api/openapi',
-    openapi_url='/api/openapi.json',
+    docs_url="/api/openapi",
+    openapi_url="/api/openapi.json",
 )
 
 app.add_middleware(RequestIDMiddleware)

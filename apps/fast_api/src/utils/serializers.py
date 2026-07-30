@@ -2,11 +2,13 @@ from typing import Any, TypeVar
 
 import orjson
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def orjson_dumps(data: Any) -> bytes:
-    return orjson.dumps(data, default=lambda x: x.dict() if hasattr(x, 'dict') else None)
+    return orjson.dumps(
+        data, default=lambda x: x.dict() if hasattr(x, "dict") else None
+    )
 
 
 def orjson_loads(data: bytes) -> Any:

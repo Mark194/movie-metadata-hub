@@ -6,9 +6,9 @@ from models.user import User
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-ROLE_NOT_FOUND = 'Role not found'
-ROLE_OR_PERMISSION_NOT_FOUND = 'Role or permission not found'
-ROLE_OR_USER_NOT_FOUND = 'Role or user not found'
+ROLE_NOT_FOUND = "Role not found"
+ROLE_OR_PERMISSION_NOT_FOUND = "Role or permission not found"
+ROLE_OR_USER_NOT_FOUND = "Role or user not found"
 
 
 class RoleService:
@@ -29,7 +29,9 @@ class RoleService:
     async def get_role(self, role_id: UUID) -> Role | None:
         return await self.db.get(Role, role_id)
 
-    async def update_role(self, role_id: UUID, name: str | None = None, description: str | None = None) -> Role:
+    async def update_role(
+        self, role_id: UUID, name: str | None = None, description: str | None = None
+    ) -> Role:
         role = await self.get_role(role_id)
         if not role:
             raise ValueError(ROLE_NOT_FOUND)
@@ -47,7 +49,9 @@ class RoleService:
             await self.db.delete(role)
             await self.db.commit()
 
-    async def create_permission(self, name: str, resource: str, action: str) -> Permission:
+    async def create_permission(
+        self, name: str, resource: str, action: str
+    ) -> Permission:
         perm = Permission(name=name, resource=resource, action=action)
         self.db.add(perm)
         await self.db.commit()
@@ -58,7 +62,9 @@ class RoleService:
         result = await self.db.execute(select(Permission))
         return result.scalars().all()
 
-    async def assign_permission_to_role(self, role_id: UUID, permission_id: UUID) -> None:
+    async def assign_permission_to_role(
+        self, role_id: UUID, permission_id: UUID
+    ) -> None:
         role = await self.get_role(role_id)
         perm = await self.db.get(Permission, permission_id)
         if not role or not perm:
@@ -67,7 +73,9 @@ class RoleService:
             role.permissions.append(perm)
             await self.db.commit()
 
-    async def remove_permission_from_role(self, role_id: UUID, permission_id: UUID) -> None:
+    async def remove_permission_from_role(
+        self, role_id: UUID, permission_id: UUID
+    ) -> None:
         role = await self.get_role(role_id)
         perm = await self.db.get(Permission, permission_id)
         if role and perm and perm in role.permissions:

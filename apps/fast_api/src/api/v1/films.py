@@ -8,23 +8,23 @@ from api.v1.schemas import FilmQueryParams, SearchQueryParams
 router = APIRouter()
 
 
-@router.get('/films', response_model=list[Film])
+@router.get("/films", response_model=list[Film])
 async def get_films(
-        params=Depends(FilmQueryParams),
-        film_service: FilmService = Depends(get_film_service),
+    params=Depends(FilmQueryParams),
+    film_service: FilmService = Depends(get_film_service),
 ):
     return await film_service.get_all(
         sort=params.sort,
         offset=params.offset,
         limit=params.page_size,
-        genre=params.genre
+        genre=params.genre,
     )
 
 
-@router.get('/films/search', response_model=list[Film])
+@router.get("/films/search", response_model=list[Film])
 async def search_films(
-        params=Depends(SearchQueryParams),
-        film_service: FilmService = Depends(get_film_service),
+    params=Depends(SearchQueryParams),
+    film_service: FilmService = Depends(get_film_service),
 ):
     return await film_service.get_all(
         offset=params.offset,
@@ -33,14 +33,12 @@ async def search_films(
     )
 
 
-UUID_REGEX = r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+UUID_REGEX = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 
 
-@router.get('/films/{film_id}', response_model=FilmDetail)
+@router.get("/films/{film_id}", response_model=FilmDetail)
 async def get_film(
-        film_id: str = Path(..., pattern=UUID_REGEX, description='Film UUID'),
-        film_service: FilmService = Depends(get_film_service),
+    film_id: str = Path(..., pattern=UUID_REGEX, description="Film UUID"),
+    film_service: FilmService = Depends(get_film_service),
 ):
-    return await film_service.get_by_id(
-        film_id=film_id
-    )
+    return await film_service.get_by_id(film_id=film_id)

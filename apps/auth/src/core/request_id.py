@@ -3,7 +3,7 @@ import uuid
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
-HEADER_REQUEST_ID = 'x-request-id'
+HEADER_REQUEST_ID = "x-request-id"
 
 
 class RequestIDMiddleware(BaseHTTPMiddleware):
