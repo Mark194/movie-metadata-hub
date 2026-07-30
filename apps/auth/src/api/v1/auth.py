@@ -1,13 +1,19 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-
-from api.v1.schemas import RegistrationParams, AuthParams, RefreshParams, LogoutParams, TokenResponse
-from api.v1.users import get_user_service
 from core.dependencies import get_access_token, get_auth_service
 from core.rate_limit import limiter
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from services.auth import AuthService
 from services.user import UserService
+
+from api.v1.schemas import (
+    AuthParams,
+    LogoutParams,
+    RefreshParams,
+    RegistrationParams,
+    TokenResponse,
+)
+from api.v1.users import get_user_service
 
 router = APIRouter()
 
@@ -54,7 +60,6 @@ async def logout(
         await service.logout(access_token, params.refresh_token)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    return None
 
 
 @router.post('/auth/refresh', response_model=TokenResponse)

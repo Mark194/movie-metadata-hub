@@ -1,9 +1,8 @@
 import uuid
 
-from sqlalchemy import Column, UUID, ForeignKey, String
-from sqlalchemy.orm import relationship
-
 from db.postgres import Base
+from sqlalchemy import UUID, Column, ForeignKey, String
+from sqlalchemy.orm import relationship
 
 
 class SocialAccount(Base):

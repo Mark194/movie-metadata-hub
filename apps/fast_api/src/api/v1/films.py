@@ -1,8 +1,9 @@
-from api.v1.schemas import FilmQueryParams, SearchQueryParams
+from core.dependencies import get_film_service
 from fastapi import APIRouter, Depends, Path
 from models.film import Film, FilmDetail
 from services.film import FilmService
-from core.dependencies import get_film_service
+
+from api.v1.schemas import FilmQueryParams, SearchQueryParams
 
 router = APIRouter()
 

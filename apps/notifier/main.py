@@ -1,8 +1,7 @@
-from fastapi import FastAPI
-from fastapi.responses import ORJSONResponse
-
 from api import notify
 from common import get_logger
+from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
 
 app = FastAPI(
     title='Notification Service API',

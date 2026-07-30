@@ -1,8 +1,8 @@
-import httpx
 from abc import ABC, abstractmethod
+from typing import Any
 from urllib.parse import urlencode
-from typing import Dict, Any
 
+import httpx
 from common.settings import get_settings
 
 settings = get_settings()
@@ -16,17 +16,14 @@ class BaseOAuthProvider(ABC):
     @abstractmethod
     def get_auth_url(self) -> str:
         """Возвращает URL для редиректа на страницу авторизации провайдера."""
-        pass
 
     @abstractmethod
-    async def get_access_token(self, code: str) -> Dict[str, Any]:
+    async def get_access_token(self, code: str) -> dict[str, Any]:
         """Обменивает code на access_token и возвращает полный ответ провайдера."""
-        pass
 
     @abstractmethod
-    async def get_user_info(self, token_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def get_user_info(self, token_data: dict[str, Any]) -> dict[str, Any]:
         """Извлекает данные пользователя из ответа провайдера и приводит к единому формату."""
-        pass
 
 
 class YandexOAuthProvider(BaseOAuthProvider):
@@ -46,7 +43,7 @@ class YandexOAuthProvider(BaseOAuthProvider):
         }
         return f'{self.auth_url}?{urlencode(params)}'
 
-    async def get_access_token(self, code: str) -> Dict[str, Any]:
+    async def get_access_token(self, code: str) -> dict[str, Any]:
         async with httpx.AsyncClient() as client:
             data = {
                 'grant_type': 'authorization_code',
@@ -58,7 +55,7 @@ class YandexOAuthProvider(BaseOAuthProvider):
             response.raise_for_status()
             return response.json()
 
-    async def get_user_info(self, token_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def get_user_info(self, token_data: dict[str, Any]) -> dict[str, Any]:
         access_token = token_data['access_token']
         async with httpx.AsyncClient() as client:
             headers = {'Authorization': f'OAuth {access_token}'}
@@ -92,7 +89,7 @@ class VKOAuthProvider(BaseOAuthProvider):
         }
         return f'{self.auth_url}?{urlencode(params)}'
 
-    async def get_access_token(self, code: str) -> Dict[str, Any]:
+    async def get_access_token(self, code: str) -> dict[str, Any]:
         async with httpx.AsyncClient() as client:
             params = {
                 'client_id': self.config['client_id'],
@@ -104,7 +101,7 @@ class VKOAuthProvider(BaseOAuthProvider):
             response.raise_for_status()
             return response.json()
 
-    async def get_user_info(self, token_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def get_user_info(self, token_data: dict[str, Any]) -> dict[str, Any]:
         access_token = token_data['access_token']
         user_id = token_data['user_id']
         async with httpx.AsyncClient() as client:

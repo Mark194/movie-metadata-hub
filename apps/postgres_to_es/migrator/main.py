@@ -1,10 +1,10 @@
 import time
 
+from common import get_logger, get_settings
 from converter.data_converter import DataConverter
 from services.elasticsearch_client import ElasticsearchClient
 from services.postgres_client import PostgreSQLClient
 from services.redis_client import RedisClient
-from common import get_settings, get_logger
 from storage.json_storage import JsonFileStorage
 from storage.redis_storage import RedisStorage
 
@@ -88,13 +88,13 @@ class MigratorETL:
                 logger.info(f'Found affected movies: {len(affected_movies)}')
                 self.process_movies(affected_movies)
             else:
-                logger.info(f'No affected movies')
+                logger.info('No affected movies')
 
         except Exception as err:
             logger.error(f'Found err in handle {err}', exc_info=True)
 
     def run(self):
-        logger.info(f'Start migrator...')
+        logger.info('Start migrator...')
 
         while True:
             self.handle()
@@ -114,7 +114,7 @@ def main():
     try:
         migrator.run()
     except KeyboardInterrupt:
-        logger.info(f'Shutting down migrator...')
+        logger.info('Shutting down migrator...')
     except Exception as err:
         logger.error(err)
     finally:

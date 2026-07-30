@@ -1,11 +1,11 @@
+from db.database import get_db
+from db.models import UserSubscription, UserSubscriptionPlan
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.dependencies import get_current_user
 from api.schemas import SubscriptionResponse
-from db.database import get_db
-from db.models import UserSubscription, UserSubscriptionPlan
 
 router = APIRouter(prefix='/subscription', tags=['subscription'])
 

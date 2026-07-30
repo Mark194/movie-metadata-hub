@@ -1,9 +1,8 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
-
-from api.v1 import promo, subscription, admin
+from api.v1 import admin, promo, subscription
 from external_services.clients import auth_client, payment_client
+from fastapi import FastAPI
 
 
 @asynccontextmanager

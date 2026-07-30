@@ -1,14 +1,21 @@
 import secrets
 import string
-
-from uuid import UUID
 from datetime import datetime, timezone
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from fastapi import HTTPException, status
+from uuid import UUID
 
-from api.schemas import PromoCodeCreate, GenerateCodesRequest, ApplyPromoAdminRequest
-from db.models import PromoCode, PromoCodeStatus, UserSubscriptionPlan, DiscountType, PromoCodeUsage, UsageStatus
+from api.schemas import GenerateCodesRequest, PromoCodeCreate
+from db.models import (
+    DiscountType,
+    PromoCode,
+    PromoCodeStatus,
+    PromoCodeUsage,
+    UsageStatus,
+    UserSubscriptionPlan,
+)
+from fastapi import HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from services.promo_service import PromoService
 
 PROMO_NOT_FOUND = 'Промокод не найден'

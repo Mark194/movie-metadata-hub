@@ -1,5 +1,6 @@
 from services.celery_app import celery_app
 
+
 def send_notification(user_id: str, template_name: str, context: dict):
     celery_app.send_task(
         'services.tasks.send_notification',

@@ -1,7 +1,6 @@
-from typing import Type
 
 from redis.asyncio import Redis
-from utils.serializers import orjson_dumps, deserialize_list
+from utils.serializers import deserialize_list, orjson_dumps
 
 
 class CacheService[T]:
@@ -10,13 +9,13 @@ class CacheService[T]:
         self.redis = redis
         self.default_expire = default_expire
 
-    async def get(self, key: str, model_class: Type[T]) -> T | None:
+    async def get(self, key: str, model_class: type[T]) -> T | None:
         data = await self.redis.get(key)
         if not data:
             return None
         return model_class.parse_raw(data)
 
-    async def get_list(self, key: str, model_class: Type[T]) -> list[T] | None:
+    async def get_list(self, key: str, model_class: type[T]) -> list[T] | None:
         data = await self.redis.get(key)
         if not data:
             return None

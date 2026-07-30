@@ -1,15 +1,14 @@
 import secrets
 from datetime import timedelta
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-
-from models.user import User
+from common import get_settings
 from models.social_account import SocialAccount
+from models.user import User
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from services.auth import AuthService
 from services.oauth_providers import get_provider
-
-from common import get_settings
 
 settings = get_settings()
 

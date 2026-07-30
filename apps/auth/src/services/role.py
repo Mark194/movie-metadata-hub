@@ -1,10 +1,10 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 from uuid import UUID
 
-from models.role import Role
 from models.permission import Permission
+from models.role import Role
 from models.user import User
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 ROLE_NOT_FOUND = 'Role not found'
 ROLE_OR_PERMISSION_NOT_FOUND = 'Role or permission not found'
@@ -15,7 +15,7 @@ class RoleService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def create_role(self, name: str, description: str = None) -> Role:
+    async def create_role(self, name: str, description: str | None = None) -> Role:
         role = Role(name=name, description=description)
         self.db.add(role)
         await self.db.commit()
@@ -29,7 +29,7 @@ class RoleService:
     async def get_role(self, role_id: UUID) -> Role | None:
         return await self.db.get(Role, role_id)
 
-    async def update_role(self, role_id: UUID, name: str = None, description: str = None) -> Role:
+    async def update_role(self, role_id: UUID, name: str | None = None, description: str | None = None) -> Role:
         role = await self.get_role(role_id)
         if not role:
             raise ValueError(ROLE_NOT_FOUND)

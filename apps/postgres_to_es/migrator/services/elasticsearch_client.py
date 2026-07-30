@@ -1,8 +1,8 @@
 from typing import Any
 
-from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk, BulkIndexError
 from common import get_logger
+from elasticsearch import Elasticsearch
+from elasticsearch.helpers import BulkIndexError, bulk
 from utils.index_loader import load_index_from_json
 
 logger = get_logger(__name__)
@@ -63,5 +63,5 @@ class ElasticsearchClient:
         for movie_id in ids:
             try:
                 self.client.delete(index=self.index, id=movie_id, ignore=[400, 404])
-            except Exception as err:
+            except Exception:
                 logger.error(f'Failed to delete movie {movie_id}')

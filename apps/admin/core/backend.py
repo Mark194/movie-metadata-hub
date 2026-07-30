@@ -3,12 +3,13 @@ from django.contrib.auth.models import User as DjangoUser
 
 from core.auth import get_auth_client
 
+
 class AuthServiceBackend(BaseBackend):
     def authenticate(self, request, username=None, password=None):
         client = get_auth_client()
         tokens = client.login(username, password)
         if tokens:
-            user, created = DjangoUser.objects.get_or_create(username=username)
+            user, _created = DjangoUser.objects.get_or_create(username=username)
             user.is_staff = True
             user.save()
 

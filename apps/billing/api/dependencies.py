@@ -1,10 +1,9 @@
 from http import HTTPStatus
 
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import JWTError, jwt
-
 from common.settings import get_settings
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import JWTError, jwt
 from services.redis_client import redis_client
 
 settings = get_settings()

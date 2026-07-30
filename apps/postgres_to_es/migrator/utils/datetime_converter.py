@@ -1,8 +1,8 @@
-from datetime import datetime, date
+from datetime import date, datetime
 from typing import Any
 
 
-class DateTimeConverter(object):
+class DateTimeConverter:
     @staticmethod
     def convert_datetime_to_str(obj: Any) -> Any:
         """Рекурсивно преобразует datetime объекты в строки"""

@@ -1,14 +1,22 @@
 from http import HTTPStatus
-
-from fastapi import APIRouter, Depends, HTTPException, status
 from uuid import UUID
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.v1.schemas import ChangeLoginParams, ChangePasswordParams, LoginHistoryResponse, RoleAssignParams, UserOut
-from core.dependencies import get_current_user, get_postgres, get_cache_service, require_permission, get_user_service
-from services.user import UserService
-from services.cache import CacheService
+from core.dependencies import (
+    get_current_user,
+    get_user_service,
+    require_permission,
+)
+from fastapi import APIRouter, Depends, HTTPException, status
 from models.user import User
+from services.user import UserService
+
+from api.v1.schemas import (
+    ChangeLoginParams,
+    ChangePasswordParams,
+    LoginHistoryResponse,
+    RoleAssignParams,
+    UserOut,
+)
 
 router = APIRouter()
 
@@ -64,7 +72,7 @@ async def assign_role_to_user(
 ):
     try:
         await service.assign_role_to_user(user_id, params.role_id)
-        return None
+        return
     except ValueError as e:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))
 
@@ -78,7 +86,7 @@ async def remove_role_from_user(
 ):
     try:
         await service.remove_role_from_user(user_id, role_id)
-        return None
+        return
     except ValueError:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=INVALID_USER_OR_ROLE)
 

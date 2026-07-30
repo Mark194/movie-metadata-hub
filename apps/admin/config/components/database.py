@@ -1,6 +1,5 @@
 from common import get_settings
 
-
 config = get_settings()
 
 DATABASES = {

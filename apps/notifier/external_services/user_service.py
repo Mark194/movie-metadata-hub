@@ -1,10 +1,9 @@
-from typing import Iterator, Any
-
-import requests
-
+from collections.abc import Iterator
+from typing import Any
 from uuid import UUID
 
-from common import get_settings, get_logger
+import requests
+from common import get_logger, get_settings
 
 settings = get_settings()
 logger = get_logger(__name__)
@@ -35,8 +34,7 @@ class UserService:
             users = data.get("users", [])
             if not users:
                 break
-            for user in users:
-                yield user
+            yield from users
             if len(users) < page_size:
                 break
             offset += page_size

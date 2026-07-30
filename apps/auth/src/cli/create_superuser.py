@@ -6,8 +6,9 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 from common.settings import get_settings
-from db.postgres import init_postgres, close_postgres, _async_session_maker
+from db.postgres import _async_session_maker, close_postgres, init_postgres
 from models.user import User
+
 
 async def create_superuser(login: str, password: str, first_name: str = "", last_name: str = ""):
     settings = get_settings()

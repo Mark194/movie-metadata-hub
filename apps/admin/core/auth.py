@@ -1,11 +1,10 @@
-import httpx
 import logging
-
-from django.core.cache import cache
-from http import HTTPStatus
 from functools import lru_cache
+from http import HTTPStatus
 
+import httpx
 from common import get_settings
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 

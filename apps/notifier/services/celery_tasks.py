@@ -1,14 +1,12 @@
-import logging
 
 from celery import Celery
-from jinja2 import Template as JinjaTemplate
-from sqlalchemy import func
-
+from common import get_logger, get_settings
 from db.sync_postgres import SyncSessionLocal
-from models.notify import Notification, NotificationStatus, Template
+from external_services.senders import send_email, send_push, send_sms
 from external_services.user_service import UserService
-from external_services.senders import send_email, send_sms, send_push
-from common import get_settings, get_logger
+from jinja2 import Template as JinjaTemplate
+from models.notify import Notification, NotificationStatus, Template
+from sqlalchemy import func
 
 settings = get_settings()
 
@@ -147,8 +145,8 @@ def send_notification(self, user_id, template_id=None, subject=None, body=None,
 
 
 @celery_app.task
-def broadcast_notification(template_id: int, context: dict = None,
-                           type_: str = None, subject: str = None, body: str = None):
+def broadcast_notification(template_id: int, context: dict | None = None,
+                           type_: str | None = None, subject: str | None = None, body: str | None = None):
     """
     Отправка всем пользователям через пагинацию и батчи.
     """
@@ -182,9 +180,9 @@ def broadcast_notification(template_id: int, context: dict = None,
 
 
 @celery_app.task
-def send_batch_notifications(user_ids: list, template_id: int = None,
-                             context: dict = None, type_: str = None,
-                             subject: str = None, body: str = None):
+def send_batch_notifications(user_ids: list, template_id: int | None = None,
+                             context: dict | None = None, type_: str | None = None,
+                             subject: str | None = None, body: str | None = None):
     """
     Обрабатывает батч пользователей, для каждого вызывает send_notification.
     """

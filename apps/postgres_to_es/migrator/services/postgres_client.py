@@ -2,9 +2,8 @@ from contextlib import contextmanager
 from typing import Any
 
 import psycopg2
-from psycopg2.extras import DictCursor
-
 from common import get_logger
+from psycopg2.extras import DictCursor
 from utils.query_loader import QueryLoader
 
 logger = get_logger(__name__)

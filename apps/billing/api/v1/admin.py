@@ -1,14 +1,20 @@
 from uuid import UUID
 
+from db.database import get_db
+from db.models import PromoCodeStatus
 from fastapi import APIRouter, Depends, Query
+from services.admin_promo_service import AdminPromoService
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.dependencies import require_admin
-from api.schemas import (ApplyPromoAdminRequest, PromoCodeCreate, PromoCodeUpdate, PromoCodeResponse,
-                         GenerateCodesResponse, GenerateCodesRequest)
-from db.database import get_db
-from db.models import PromoCodeStatus
-from services.admin_promo_service import AdminPromoService
+from api.schemas import (
+    ApplyPromoAdminRequest,
+    GenerateCodesRequest,
+    GenerateCodesResponse,
+    PromoCodeCreate,
+    PromoCodeResponse,
+    PromoCodeUpdate,
+)
 
 router = APIRouter(prefix='/admin/promo', tags=['admin'])
 
@@ -27,7 +33,7 @@ async def list_promo(
         skip: int = Query(0, ge=0),
         limit: int = Query(100, ge=1, le=1000),
         status: PromoCodeStatus = None,
-        code_filter: str = None,
+        code_filter: str | None = None,
         admin: dict = Depends(require_admin),
         db: AsyncSession = Depends(get_db)
 ):

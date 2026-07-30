@@ -3,21 +3,22 @@ import sys
 from logging.config import fileConfig
 from pathlib import Path
 
+from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
-from alembic import context
 
 # Добавляем корень проекта в sys.path, чтобы импортировать модули
 sys.path.append(str(Path(__file__).parent.parent.parent.parent))  # теперь видно apps/billing/..
 
 # Загружаем .env (можно вынести в settings, но для верности)
 from dotenv import load_dotenv
+
 env_path = Path(__file__).parent.parent.parent.parent / '.env'
 load_dotenv(dotenv_path=env_path)
 
-from db.postgres import Base  # ваш Base
 from common.settings import get_settings
+from db.postgres import Base  # ваш Base
 
 settings = get_settings()
 config = context.config

@@ -1,6 +1,5 @@
 from common import get_settings
 
-
 config = get_settings()
 
 SECRET_KEY = config.admin.secret_key

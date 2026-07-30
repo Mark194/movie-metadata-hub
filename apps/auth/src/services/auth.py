@@ -1,15 +1,14 @@
 import uuid
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import jwt
-
-from datetime import datetime, timedelta, timezone
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-
-from api.v1.schemas import RegistrationParams, AuthParams
+from api.v1.schemas import AuthParams, RegistrationParams
 from common.settings import get_settings
 from models.user import User
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from services.cache import CacheService
 
 settings = get_settings()

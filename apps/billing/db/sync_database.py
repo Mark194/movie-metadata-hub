@@ -1,7 +1,6 @@
+from common.settings import get_settings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-from common.settings import get_settings
 
 settings = get_settings()
 sync_db_url = settings.postgres.db_url

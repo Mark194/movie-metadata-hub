@@ -2,15 +2,19 @@ from datetime import datetime, timezone
 from http import HTTPStatus
 from uuid import UUID
 
+from common.settings import get_settings
+from db.models import (
+    DiscountType,
+    PromoCode,
+    PromoCodeStatus,
+    PromoCodeUsage,
+    UsageStatus,
+)
+from external_services.notifier import send_notification
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from common.settings import get_settings
-from db.models import PromoCode, PromoCodeUsage, UsageStatus, DiscountType, PromoCodeStatus
-from external_services.auth import update_user_premium_status
-from external_services.notifier import send_notification
-from services.celery_app import celery_app
 from services.tasks import activate_subscription_task
 
 settings = get_settings()

@@ -1,9 +1,8 @@
 from datetime import datetime
 from uuid import UUID
 
+from db.models import DiscountType, PromoCodeStatus
 from pydantic import BaseModel, Field
-
-from db.models import DiscountType, PromoCodeStatus, UsageStatus
 
 
 class PromoCodeCreate(BaseModel):

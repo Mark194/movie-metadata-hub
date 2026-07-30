@@ -1,14 +1,14 @@
 from uuid import UUID
 
+from common.settings import get_settings
 from fastapi import Request
+from models.login_history import LoginHistory
+from models.role import Role
+from models.user import User
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from werkzeug.security import generate_password_hash
 
-from common.settings import get_settings
-from models.login_history import LoginHistory
-from models.role import Role
-from models.user import User
 from services.cache import CacheService
 
 settings = get_settings()
@@ -36,7 +36,6 @@ class UserService:
         if existing.scalar_one_or_none():
             raise ValueError(INVALID_USERNAME)
 
-        old_login = user.login
         user.login = new_login
         await self.db.commit()
         await self.db.refresh(user)

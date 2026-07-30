@@ -2,11 +2,10 @@ import uuid
 
 import pytest_asyncio
 import redis.asyncio as aioredis
-
+from common import get_settings
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 
-from common import get_settings
 from .testdata.es_mapping import MAPPING_MOVIES
 
 settings = get_settings()
@@ -94,7 +93,7 @@ def es_write_data(es_client):
             await es_client.indices.delete(index=index)
         await es_client.indices.create(index=index, **MAPPING_MOVIES)
 
-        updated, errors = await async_bulk(
+        _updated, errors = await async_bulk(
             client=es_client,
             actions=data,
             refresh = 'wait_for'

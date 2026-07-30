@@ -3,20 +3,18 @@ from http import HTTPStatus
 import aiohttp
 import pytest
 import pytest_asyncio
-
 from common.settings import get_settings
 
 settings = get_settings()
 
 
 async def call_search(params: dict) -> tuple[int, dict | list]:
-    async with aiohttp.ClientSession() as session:
-        async with session.get(
-            f'{settings.api.url}/api/v1/films/search',
-            params=params
-        ) as response:
-            body = await response.json()
-            return response.status, body
+    async with aiohttp.ClientSession() as session, session.get(
+        f'{settings.api.url}/api/v1/films/search',
+        params=params
+    ) as response:
+        body = await response.json()
+        return response.status, body
 
 
 @pytest.mark.parametrize('params, expected_status', [

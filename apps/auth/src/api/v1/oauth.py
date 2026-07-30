@@ -1,10 +1,8 @@
 from http import HTTPStatus
 
+from core.dependencies import get_oauth_service
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
-
-from core.dependencies import get_auth_service, get_postgres, get_oauth_service
-from services.auth import AuthService
 from services.oauth import OAuthService
 
 router = APIRouter()

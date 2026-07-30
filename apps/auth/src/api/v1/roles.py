@@ -1,12 +1,12 @@
 from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
-
-from api.v1.schemas import PermissionAssign, RoleCreate, RoleResponse, RoleUpdate
 from core.dependencies import get_role_service, require_permission
+from fastapi import APIRouter, Depends, HTTPException
 from models.user import User
 from services.role import RoleService
+
+from api.v1.schemas import PermissionAssign, RoleCreate, RoleResponse, RoleUpdate
 
 router = APIRouter()
 

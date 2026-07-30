@@ -1,7 +1,7 @@
-import pytest
-import aiohttp
 from http import HTTPStatus
 
+import aiohttp
+import pytest
 import pytest_asyncio
 from common.settings import get_settings
 
@@ -9,13 +9,12 @@ settings = get_settings()
 
 
 async def call_films(params: dict) -> tuple[int, list | dict]:
-    async with aiohttp.ClientSession() as session:
-        async with session.get(
-                f'{settings.api.url}/api/v1/films',
-                params=params
-        ) as resp:
-            body = await resp.json()
-            return resp.status, body
+    async with aiohttp.ClientSession() as session, session.get(
+            f'{settings.api.url}/api/v1/films',
+            params=params
+    ) as resp:
+        body = await resp.json()
+        return resp.status, body
 
 
 def build_films_cache_key(

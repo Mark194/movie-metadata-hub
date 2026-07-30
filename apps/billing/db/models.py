@@ -1,12 +1,19 @@
 from enum import StrEnum
 from uuid import uuid4
 
-from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey, Enum, Table
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
+    String,
+)
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.sql import func
 
 from db.database import Base
-from db.sync_database import sync_engine
 
 
 class DiscountType(StrEnum):

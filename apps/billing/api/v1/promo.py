@@ -1,10 +1,10 @@
+from db.database import get_db
 from fastapi import APIRouter, Depends
+from services.promo_service import PromoService
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.dependencies import get_current_user
 from api.schemas import ApplyPromoRequest, ApplyPromoResponse, ConfirmPaymentRequest
-from db.database import get_db
-from services.promo_service import PromoService
 
 router = APIRouter(prefix='/promo', tags=['promo'])
 

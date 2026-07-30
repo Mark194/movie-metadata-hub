@@ -1,15 +1,14 @@
 from http import HTTPStatus
-from typing import Dict
 
+from db.postgres import get_db
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from models.notify import Notification, Template
+from services.celery_tasks import broadcast_notification, send_notification
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.dependencies import get_current_user, require_admin
-from api.schemas import EventPayload, BroadcastPayload, PersonalizedPayload, FreePayload
-from db.postgres import get_db
-from models.notify import Notification, Template
-from services.celery_tasks import send_notification, broadcast_notification
+from api.schemas import BroadcastPayload, EventPayload, FreePayload, PersonalizedPayload
 
 router = APIRouter()
 
@@ -52,7 +51,7 @@ async def handle_event(
 @router.post('/notify/broadcast')
 async def broadcast(
         payload: BroadcastPayload,
-        admin: Dict = Depends(require_admin)
+        admin: dict = Depends(require_admin)
 ):
     broadcast_notification.delay(
         template_id=payload.template_id,
@@ -67,7 +66,7 @@ async def broadcast(
 @router.post('/notify/personalized')
 async def personalized(
         payload: PersonalizedPayload,
-        current_user: Dict = Depends(get_current_user)
+        current_user: dict = Depends(get_current_user)
 ):
     if payload.user_id != current_user['user_id']:
         raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail='Not allowed to send for another user')

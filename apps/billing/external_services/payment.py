@@ -1,6 +1,6 @@
 import httpx
-
 from common import logger
+
 from external_services.clients import payment_client
 
 logger = get_logger(__name__)

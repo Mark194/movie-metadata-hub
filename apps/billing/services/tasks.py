@@ -1,10 +1,10 @@
-from celery import shared_task
-from datetime import datetime, timedelta, timezone
 import asyncio
+from datetime import datetime, timedelta, timezone
 
+from celery import shared_task
 from common import get_logger
-from db.sync_database import SyncSessionLocal
 from db.models import UserSubscription, UserSubscriptionPlan
+from db.sync_database import SyncSessionLocal
 from external_services.auth import update_user_premium_status
 from external_services.notifier import send_notification
 
@@ -20,7 +20,7 @@ async def _expire_and_notify(user_id: str):
     send_notification(user_id, 'subscription_expired', {})
 
 @shared_task
-def activate_subscription_task(user_id: str, plan: str, days: int = None, promo_code_id: str = None):
+def activate_subscription_task(user_id: str, plan: str, days: int | None = None, promo_code_id: str | None = None):
     db = SyncSessionLocal()
     try:
         sub = db.query(UserSubscription).filter(UserSubscription.user_id == user_id).first()

@@ -9,23 +9,21 @@ from http import HTTPStatus
 
 import aiohttp
 import pytest
-
 from common.settings import get_settings
 
 settings = get_settings()
 
 
 async def call_film_detail(film_id: str) -> tuple[int, dict | list | str]:
-    async with aiohttp.ClientSession() as session:
-        async with session.get(
-                f'{settings.api.url}/api/v1/films/{film_id}'
-        ) as resp:
-            content_type = resp.headers.get('Content-Type', '')
-            if 'application/json' in content_type:
-                body = await resp.json()
-            else:
-                body = await resp.text()
-            return resp.status, body
+    async with aiohttp.ClientSession() as session, session.get(
+            f'{settings.api.url}/api/v1/films/{film_id}'
+    ) as resp:
+        content_type = resp.headers.get('Content-Type', '')
+        if 'application/json' in content_type:
+            body = await resp.json()
+        else:
+            body = await resp.text()
+        return resp.status, body
 
 
 @pytest.mark.parametrize('film_id, expected_status', [
@@ -125,7 +123,7 @@ async def test_film_detail_redis_cache(generate_movies, es_write_data, redis_cli
     await es_write_data(settings.elastic.index, other_movie)
     other_cache_key = f'film:{other_uuid}'
 
-    status3, film3 = await call_film_detail(other_uuid)
+    status3, _film3 = await call_film_detail(other_uuid)
 
     assert status3 == HTTPStatus.OK
     assert await redis_client.exists(other_cache_key), 'New cache key not created for different film_id'

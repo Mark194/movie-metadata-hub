@@ -1,9 +1,9 @@
 import uuid
-from sqlalchemy import Column, String, Table, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 
 from db.postgres import Base
+from sqlalchemy import Column, ForeignKey, String, Table
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 
 role_permission = Table(
     'role_permissions',

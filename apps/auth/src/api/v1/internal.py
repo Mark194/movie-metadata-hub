@@ -3,7 +3,7 @@ from uuid import UUID
 
 from common import get_settings
 from core.dependencies import get_user_service
-from fastapi import APIRouter, Header, HTTPException, Depends, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from services.user import UserService
 
 settings = get_settings()

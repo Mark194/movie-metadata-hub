@@ -1,10 +1,9 @@
 import uuid
-
 from datetime import datetime, timezone
-from sqlalchemy import Column, DateTime, String, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
 
 from db.postgres import Base
+from sqlalchemy import Column, DateTime, ForeignKey, String
+from sqlalchemy.dialects.postgresql import UUID
 
 
 class LoginHistory(Base):

@@ -1,13 +1,13 @@
 import logging
 
+from core.cache_keys import CacheKeyBuilder
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from elasticsearch.exceptions import ConnectionError as ESConnectionError
-
-from core.cache_keys import CacheKeyBuilder
 from fastapi import HTTPException
 from models.film import Film, FilmDetail
-from services.cache import CacheService
 from utils.elastic_builder import ElasticQueryBuilder
+
+from services.cache import CacheService
 
 
 class FilmService:

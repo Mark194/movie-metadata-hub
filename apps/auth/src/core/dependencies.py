@@ -2,21 +2,19 @@ from functools import lru_cache
 from http import HTTPStatus
 
 import jwt
-
-from fastapi import Depends, HTTPException
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from redis.asyncio import Redis
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from common import get_settings
 from db.postgres import get_postgres
 from db.redis import get_redis
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from models.user import User
+from redis.asyncio import Redis
 from services.auth import AuthService
 from services.cache import CacheService
+from services.oauth import OAuthService
 from services.role import RoleService
 from services.user import UserService
-from services.oauth import OAuthService
+from sqlalchemy.ext.asyncio import AsyncSession
 
 security = HTTPBearer()
 settings = get_settings()
@@ -28,14 +26,14 @@ USER_NOT_FOUND = 'User not found'
 FORBIDDEN = 'Forbidden'
 
 
-@lru_cache()
+@lru_cache
 def get_cache_service(
         redis: Redis = Depends(get_redis),
 ) -> CacheService:
     return CacheService(redis)
 
 
-@lru_cache()
+@lru_cache
 def get_auth_service(
         cache_service: CacheService = Depends(get_cache_service),
         postgres: AsyncSession = Depends(get_postgres),
@@ -43,7 +41,7 @@ def get_auth_service(
     return AuthService(cache_service, postgres)
 
 
-@lru_cache()
+@lru_cache
 def get_role_service(db: AsyncSession = Depends(get_postgres)) -> RoleService:
     return RoleService(db)
 
